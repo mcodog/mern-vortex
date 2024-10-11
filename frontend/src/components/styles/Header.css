@@ -1,0 +1,125 @@
+nav {
+    z-index: 100;
+}
+
+.nav-main {
+    color: white;
+    width: 100%;
+    height: 70px;
+
+    top:0;
+    left:0;
+    position: absolute;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    gap:300px;
+    font-family: "Kanit", sans-serif;
+    background: transparent;
+
+    z-index:100;
+}
+
+.scrolled {
+    /* background-color: red; */
+    background-color: white;
+    position: fixed;
+    transition: .5s;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.scrolled .site-title {
+    color:black;
+}
+
+.scrolled a {
+    color:black;
+}
+
+.nav-col {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    height:100%;
+}
+
+.nav-left {
+    gap:30px;
+}
+
+.nav-right {
+    gap:15px;
+}
+
+.site-title {
+    font-size: 32px;
+    font-weight: 600;
+    font-style: normal;
+    cursor: pointer;
+    /* background: ; */
+    /* background-color: red; */
+}
+
+a.site-title{
+    text-decoration: none;
+}
+
+.site-title:hover {
+    color:rgb(170, 170, 170);
+    transition: .15s;
+}
+
+.nav-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-weight: 600;
+    background: none;
+    font-size: 14px;
+}
+
+a.nav-link {
+    text-decoration: none;
+    padding:10px;
+    padding-left:15px;
+    padding-right:15px;
+    color:white;
+
+    cursor: default;
+    transition: .5s;
+    background: none;
+    cursor: pointer;
+}
+
+a.nav-link:hover {
+    color:rgb(170, 170, 170);
+    transition: .5s;
+}
+
+nav button {
+    color: var(--primary-color); 
+    padding:10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border:none;
+    border-radius:30px;
+
+    font-family: "Kanit", sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.signin:focus {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0px 0px 0px 1px rgb(60, 60, 60);
+    animation: anim-shadow .3s forwards;
+}
+
+@keyframes anim-shadow {
+    50% {
+        box-shadow: 0px 0px 10px 2px rgb(110, 110, 110);
+    }
+}

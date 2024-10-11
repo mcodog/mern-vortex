@@ -1,0 +1,218 @@
+import React, { useEffect, useState } from 'react'
+import Datatable from '../../components/Datatable'
+import axios from "axios"
+import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+
+const CategoryCrud = () => {
+const navigate = useNavigate();
+const [catModalOpen, catSetModalOpen] = useState(false);
+const [specModalOpen, specSetModalOpen] = useState(false);
+const [catFormState, catSetFormState] = useState({
+    title: '',
+    description: '',
+  });
+const [specFormState, specSetFormState] = useState({
+    title: '',
+    description: '',
+    category: ''
+  });
+
+const crudData = {
+    crudTitle: "User",
+    content: "Fill in the details for the new item you want to add."
+};
+
+const categoryData = {
+    title: 'Create Category',
+    content: 'Fill out the form below to create a new user.',
+    fields: [
+      {
+        label: 'Title',
+        type: 'text',
+        name: 'title',
+        placeholder: 'Enter Title',
+        value: catFormState.name, 
+        onChange: (e) => catSetFormState({ ...catFormState, title: e.target.value }),
+        required: true,
+      },
+      {
+        label: 'Description',
+        type: 'textarea',
+        name: 'description',
+        placeholder: 'Enter Description',
+        value: catFormState.name, 
+        onChange: (e) => catSetFormState({ ...catFormState, description: e.target.value }),
+        required: true,
+      },
+    ]
+  };
+
+const specsData = {
+    title: 'Create New Specialization',
+    content: 'Fill out the form below to create a new specialization.',
+    fields: [
+      {
+        label: 'Title',
+        type: 'text',
+        name: 'title',
+        placeholder: 'Enter Title',
+        value: specFormState.name, 
+        onChange: (e) => specSetFormState({ ...specFormState, title: e.target.value }),
+        required: true,
+      },
+      {
+        label: 'Description',
+        type: 'textarea',
+        name: 'description',
+        placeholder: 'Enter Description',
+        value: specFormState.name, 
+        onChange: (e) => specSetFormState({ ...specFormState, description: e.target.value }),
+        required: true,
+      },
+      {
+        label: 'Category',
+        type: 'text',
+        name: 'category',
+        placeholder: 'Enter Category',
+        value: specFormState.name, 
+        onChange: (e) => specSetFormState({ ...specFormState, description: e.target.value }),
+        required: true,
+      },
+    ]
+  };
+
+  const [categories, setCategories] = useState([]);
+  const fetchCategories = async() => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/category")
+      setCategories(response.data.data)
+      // console.log("Data: ", response.data.data)
+      
+    } catch (error) {
+      console.log("Error while fetching Category Data", error)
+    }
+  }
+
+  const [specs, setSpecs] = useState([]);
+  const fetchSpecs = async() => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/specialization")
+      setSpecs(response.data.data)
+      console.log("Data: ", response.data.data)
+    } catch (error) {
+      console.log("Error while fetching Specialization Data", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchCategories()
+    fetchSpecs()
+  }, [])
+
+  const catHandleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await axios.post("http://localhost:8000/api/category", catFormState);
+      console.log("Category created successfully.", response);
+      toast.success(response.data.message, { position: "top-right" })
+
+      const newCategory = {
+        _id: response.data.data._id,
+        title: catFormState.title,
+        description: catFormState.description,
+        newData: true
+    };
+
+    setCategories((prevCategories) => [newCategory, ...prevCategories]);
+      catSetFormState({ title: '', description: '' }); 
+      catSetModalOpen(false);
+
+      setTimeout(() => {
+        setCategories(prevCategories => 
+            prevCategories.map(category => 
+                category._id === newCategory._id ? { ...category, newData: false } : category
+            )
+        );
+    }, 300);
+    } catch (error) {
+      console.log("Error creating category:", error);
+    }
+    console.log(catFormState);
+  };
+
+  const specHandleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await axios.post("http://localhost:8000/api/category", catFormState);
+      console.log("Category created successfully.", response);
+      toast.success(response.data.message, { position: "top-right" })
+      fetchCategories(); 
+      specSetFormState({ title: '', description: '' }); 
+      catSetModalOpen(false);
+    } catch (error) {
+      console.log("Error creating category:", error);
+    }
+    console.log(catFormState);
+  };
+
+  const deleteCategory = async (categoryId) => {
+    console.log("Init Delete")
+    await axios.delete(`http://localhost:8000/api/category/${categoryId}`)
+    .then((response) => {
+      setCategories((prevCategories) => prevCategories.filter((category) => category._id !== categoryId));
+      toast.success(response.data.message, {position:"top-right"})
+    })
+    
+    .catch((error) => {
+      console.log("Error in Category Delete", error)
+    })
+  }
+
+return (
+<div className="main-panel__column">
+    <div className="md-thumbs">
+      <div className="thumb">
+          
+      </div>
+      <div className="thumb">
+
+      </div>
+      <div className="thumb">
+
+      </div>
+      <div className="thumb">
+
+      </div>
+    </div>
+    <div className="dual-rows">
+      <Datatable 
+        crudData={crudData}
+        modalData={categoryData}
+        handleSubmit={catHandleSubmit}
+        apiData={categories} 
+        modalOpen={catModalOpen} 
+        setModalOpen={catSetModalOpen}
+        crudType={"category"}
+        deleteHandler={deleteCategory}
+      />
+
+      <Datatable 
+        crudData={crudData}
+        modalData={specsData}
+        handleSubmit={specHandleSubmit}
+        apiData={specs} 
+        modalOpen={specModalOpen} 
+        setModalOpen={specSetModalOpen}
+        crudType={"specialization"}
+        deleteHandler={deleteCategory}
+      />
+    </div>
+
+</div>
+  )
+}
+
+export default CategoryCrud
