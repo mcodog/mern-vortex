@@ -31,7 +31,7 @@ const courseSchema = mongoose.Schema({
         {
         type: Schema.Types.ObjectId,
         ref: 'courseImage',
-        required: true
+        required: false
         }
     ],    
     },

@@ -31,8 +31,14 @@ export const createSpec = async (request, response) => {
     const newSpec = new Spec(spec);
 
     try {
-        await newSpec.save();
-        response.status(201).json({ success:true, data: newSpec, message: "Specialization successfully created."});
+        await newSpec.save(); // Save newSpec first
+        const populatedSpec = await newSpec.populate('category'); // Populate the 'category' field
+        
+        response.status(201).json({
+            success: true,
+            data: populatedSpec,
+            message: "Specialization successfully created."
+        });
     } catch (error) {
         console.error("Error in Create Specialization:", error.message);
         response.status(500).json({ success: false, message: "Server Error: Error in Creating Specialization."});

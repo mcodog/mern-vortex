@@ -7,12 +7,13 @@ import { Toaster } from 'react-hot-toast'
 
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  <>
     <Router>
       <Routes>
         <Route path="/*" element={<App />} />
       </Routes>
     </Router>
     <Toaster />
-  </StrictMode>,
+  </>
+
 )

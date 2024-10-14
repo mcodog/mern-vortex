@@ -8,6 +8,17 @@ import { FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 const InstructorCrud = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
+  const [categoryOptions, setCategoryOptions] = useState({})
+  const getOptionsSpecs = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/user")
+      console.log(response.data.data)
+      setCategoryOptions(response.data.data)
+    } catch (error) {
+      console.log("Error while fetching Category Data", error)
+    }
+  }
+
     const [formState, setFormState] = useState({
         first_name: '',
         last_name: '',
@@ -15,6 +26,7 @@ const InstructorCrud = () => {
         age: '',
         gender: '',
         address: '',
+        user: '',
       });
 
     const crudData = {
@@ -35,6 +47,7 @@ const InstructorCrud = () => {
             value: formState.first_name, 
             onChange: (e) => setFormState({ ...formState, first_name: e.target.value }),
             required: true,
+            withForeign: false,
 
             label2: 'Last Name',
             type2: 'text',
@@ -53,6 +66,7 @@ const InstructorCrud = () => {
             value: formState.age,
             onChange: (e) => setFormState({ ...formState, age: e.target.value }),
             required: true,
+            withForeign: false,
           },
           {
             label: 'Gender',
@@ -62,6 +76,7 @@ const InstructorCrud = () => {
             value: formState.gender,
             onChange: (e) => setFormState({ ...formState, gender: e.target.value }),
             required: true,
+            withForeign: false,
           },
           {
             label: 'Address',
@@ -71,6 +86,19 @@ const InstructorCrud = () => {
             value: formState.address,
             onChange: (e) => setFormState({ ...formState, address: e.target.value }),
             required: true,
+            withForeign: false,
+          },
+          {
+            label: 'User',
+            type: 'select',
+            name: 'user',
+            placeholder: 'Enter User',
+            value: formState.user, 
+            onChange: (e) => setFormState({ ...formState, user: e.target.value }),
+            required: true,
+            options: categoryOptions,
+            requestFor: 'email',
+            withForeign: false,
           },
         ]
       };
@@ -88,6 +116,7 @@ const InstructorCrud = () => {
 
       useEffect(() => {
         fetchInstructor()
+        getOptionsSpecs()
       }, [])
 
       const handleSubmit = async (event) => {

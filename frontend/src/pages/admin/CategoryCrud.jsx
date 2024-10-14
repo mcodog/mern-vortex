@@ -5,7 +5,6 @@ import toast from 'react-hot-toast'
 import { FaArrowTrendUp, FaArrowTrendDown  } from "react-icons/fa6";
 
 const CategoryCrud = () => {
-
   const [categoryOptions, setCategoryOptions] = useState({})
   const getOptionsSpecs = async () => {
     try {
@@ -71,6 +70,7 @@ const specsData = {
         value: specFormState.title,
         onChange: (e) => specSetFormState({ ...specFormState, title: e.target.value }),
         required: true,
+        withForeign: false,
       },
       {
         label: 'Description',
@@ -80,6 +80,7 @@ const specsData = {
         value: specFormState.description, 
         onChange: (e) => specSetFormState({ ...specFormState, description: e.target.value }),
         required: true,
+        withForeign: false,
       },
       {
         label: 'Category',
@@ -89,7 +90,9 @@ const specsData = {
         value: specFormState.category, 
         onChange: (e) => specSetFormState({ ...specFormState, category: e.target.value }),
         required: true,
-        options: categoryOptions
+        options: categoryOptions,
+        requestFor: 'title',
+        withForeign: true,
       },
     ]
   };
@@ -130,13 +133,13 @@ const specsData = {
       toast.success(response.data.message, { position: "top-right" })
 
       const newCategory = {
-        _id: response.data.data._id,
-        title: catFormState.title,
-        description: catFormState.description,
-        newData: true
-    };
+          _id: response.data.data._id,
+          title: catFormState.title,
+          description: catFormState.description,
+          newData: true
+      };
 
-    setCategories((prevCategories) => [newCategory, ...prevCategories]);
+      setCategories((prevCategories) => [newCategory, ...prevCategories]);
       catSetFormState({ title: '', description: '' }); 
       catSetModalOpen(false);
       getOptionsSpecs()
@@ -145,8 +148,8 @@ const specsData = {
             prevCategories.map(category => 
                 category._id === newCategory._id ? { ...category, newData: false } : category
             )
-        );
-    }, 800);
+          );
+      }, 800);
     } catch (error) {
       console.log("Error creating category:", error);
     }
@@ -155,18 +158,38 @@ const specsData = {
 
   const specHandleSubmit = async (event) => {
     event.preventDefault();
-
     try {
       const response = await axios.post("http://localhost:8000/api/specialization", specFormState);
       console.log("Specialization created successfully.", response);
       toast.success(response.data.message, { position: "top-right" })
-      fetchSpecs(); 
-      specSetFormState({ title: '', description: '', category: '' }); 
+      const { _id, category } = response.data.data;
+
+      // console.log(_id);           
+      // console.log(categoryTitle);  
+      const newSpecs = {
+          _id: _id,
+          title: specFormState.title,
+          description: specFormState.description,
+          category: category,
+          newData: true
+      };
+
+      console.log(newSpecs)
+
+      setSpecs((prevSpecs) => [newSpecs, ...prevSpecs]);
       specSetModalOpen(false);
+      setTimeout(() => {
+        setSpecs(prevSpecs => 
+            prevSpecs.map(specs => 
+              specs._id === specs._id ? { ...specs, newData: false } : specs
+            )
+          );
+      }, 800);
     } catch (error) {
       console.log("Error creating category:", error);
     }
-    console.log(specFormState);
+    specSetFormState({ title: '', description: '', category: '' }); 
+    // console.log(specFormState);
   };
 
   const deleteCategory = async (categoryId) => {
@@ -232,6 +255,7 @@ return (
       </div>
     </div>
     <div className="dual-rows">
+     
       <Datatable 
         crudData={crudData}
         modalData={categoryData}
@@ -242,6 +266,7 @@ return (
         crudType={"category"}
         deleteHandler={deleteCategory}
       />
+
 
       <Datatable 
         crudData={crudData}

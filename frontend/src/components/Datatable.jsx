@@ -1,5 +1,5 @@
 import CustomModal from './CustomModal';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaPlus } from "react-icons/fa";
 import { BiSolidTrashAlt, BiSolidMessageSquareEdit } from "react-icons/bi";
 import { MdRemoveRedEye } from "react-icons/md";
@@ -7,6 +7,12 @@ import { RiAlarmWarningFill } from "react-icons/ri";
 
 import { MdModeEdit } from "react-icons/md";
 import { IoMdTrash, IoMdEye, IoMdAlert } from "react-icons/io";
+
+import { CSSTransition } from 'react-transition-group';
+import axiosInstance from 'axios'
+import { useAxiosLoader } from 'use-axios-loader'
+
+import loaderGif from '../assets/loader-main.gif';
 
 const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default content message.' },
         modalData,
@@ -16,10 +22,38 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
         setModalOpen,
         crudType,
         deleteHandler,
-        formFields }) => {
+        editData,  }) => {
+
+    const [loading] = useAxiosLoader(axiosInstance)
+    const [delayedLoading, setDelayedLoading] = useState(true); 
+    const delayDuration = 1000; 
+
+    const [loadedData, setLoadedData] = useState({})
+
+    useEffect(() => {
+        if (!loading) {
+            const delayTimer = setTimeout(() => {
+                setDelayedLoading(false); 
+            }, delayDuration);
+
+            return () => clearTimeout(delayTimer);
+        } else {
+            setDelayedLoading(true);
+        }
+    }, [loading]);
 
     const apiList = apiData
-    // console.log(crudType)
+    console.log("modalData", modalData)
+
+    const loadModalCreate = () => {
+        setLoadedData(modalData)
+        setModalOpen(true)
+    }
+
+    const loadModalEdit = () => {
+        setLoadedData(editData)
+        setModalOpen(true)
+    }
     
     return (
         <div className="data-table">
@@ -31,128 +65,79 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                     <button
                         className='prime-button'
                         onClick={() => {
-                            setModalOpen(true);
+                            loadModalCreate()
                         }}
                     >
                         <FaPlus /> &nbsp; Add New
                     </button>
 
-                    {modalOpen && <CustomModal modalData={modalData} setOpenModal={setModalOpen} handleSubmit={handleSubmit} />}
+                    <CSSTransition
+                        in={modalOpen}
+                        timeout={300}
+                        classNames="modal"
+                        unmountOnExit
+                    >
+                        <CustomModal modalData={loadedData} setOpenModal={setModalOpen} handleSubmit={handleSubmit} />
+                    </CSSTransition>
+
                 </div>
             </div>
 
             <div className="data-table__container table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            {!(crudType == undefined) ? (
-                                modalData.fields).map((field, index) => (
-                                    !(field.col == undefined) && field.col == true ? (
-                                        <th key={field.name}>Name</th>
-                                    ) : (
-                                        <th key={field.name}>{field.label}</th>
-                                    )
-                                )
-                            ) : (
-                                <th></th>
-                            )}
-                        <th className='table-control'>Controls</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {crudType == 'category' ? (
-                            apiList.length > 0 ? (
-                                apiList.map((data, index) => (
-                                    <tr key={index} className={data.newData ? 'pop-in' : ''}>
-                                        <td>{data.title}</td>
-                                        <td>{data.description}</td>
-                                        <td className='table-control'>
-                                        {/* import { MdModeEdit } from "react-icons/md";
-                                        import { IoMdTrash, IoMdEye, IoMdAlert } from "react-icons/io"; */}
-                                            <span className='table-icon prime-icon'><MdModeEdit /></span>
-                                            <span className='table-icon neutral-icon'><IoMdEye /></span>
-                                            <span className='table-icon warning-icon'><IoMdAlert /></span>
-                                            <span className='table-icon danger-icon' onClick={() => deleteHandler(data._id)}><IoMdTrash /></span>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr className='full-width'>
-                                    <td className='no-border'>No data available.</td>
-                                </tr>
-                            )
-                        ) : crudType == 'specialization' ?  (
-                            apiList.length > 0 ? (
-                                apiList.map((data, index) => (
-                                    <tr key={index}>
-                                        <td>{data.title}</td>
-                                        <td>{data.description}</td>
-                                        {data.category == null ? (
-                                            <td>No Category Assigned</td>
+            {delayedLoading
+                ? <div className='loader-container'>
+                    <img className='loader-img' src={loaderGif} alt="Loading..." />
+                </div>
+                : 
+                    <table>
+                        <thead>
+                            <tr>
+                                {!(crudType == undefined) ? (
+                                    modalData.fields).map((field, index) => (
+                                        !(field.col == undefined) && field.col == true ? (
+                                            <th key={index}>Name</th>
                                         ) : (
-                                            <td>{data.category.title}</td>
-                                        )}
-                                        <td className='table-control'>
-                                            <span className='table-icon prime-icon'><MdModeEdit /></span>
-                                            <span className='table-icon neutral-icon'><IoMdEye /></span>
-                                            <span className='table-icon warning-icon'><IoMdAlert /></span>
-                                            <span className='table-icon danger-icon' onClick={() => deleteHandler(data._id)}><IoMdTrash /></span>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr className='full-width'>
-                                    <td className='no-border'>No data available.</td>
-                                </tr>
-                            )
+                                            <th key={index}>{field.label}</th>
+                                        )
+                                    )
+                                ) : (
+                                    <th></th>
+                                )}
+                            <th className='table-control'>Controls</th>
+                            </tr>
+                        </thead>
                         
-                        ) : crudType == 'user' ?  (
-                            apiList.length > 0 ? (
-                                apiList.map((data, index) => (
-                                    <tr key={index}>
-                                        <td>{data.email}</td>
-                                        <td>{data.password}</td>
-                                        <td>{data.role}</td>
-                                        <td>{data.status}</td>
-                                        <td className='table-control'>
-                                            <span className='table-icon prime-icon'><MdModeEdit /></span>
-                                            <span className='table-icon neutral-icon'><IoMdEye /></span>
-                                            <span className='table-icon warning-icon'><IoMdAlert /></span>
-                                            <span className='table-icon danger-icon' onClick={() => deleteHandler(data._id)}><IoMdTrash /></span>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr className='full-width'>
-                                    <td className='no-border'>No data available.</td>
-                                </tr>
-                            )
-                        ): crudType == 'instructor' ?  (
-                            apiList.length > 0 ? (
-                                apiList.map((data, index) => (
-                                    <tr key={index}>
-                                        <td>{data.first_name} {data.last_name}</td>
-                                        <td>{data.age}</td>
-                                        <td>{data.gender}</td>
-                                        <td>{data.address}</td>
-                                        <td className='table-control'>
-                                            <span className='table-icon prime-icon'><MdModeEdit /></span>
-                                            <span className='table-icon neutral-icon'><IoMdEye /></span>
-                                            <span className='table-icon warning-icon'><IoMdAlert /></span>
-                                            <span className='table-icon danger-icon' onClick={() => deleteHandler(data._id)}><IoMdTrash /></span>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr className='full-width'>
-                                    <td className='no-border'>No data available.</td>
-                                </tr>
-                            )
-                        ) : (
-                            <div></div>
-                        )}
-                    </tbody>
-                </table>
+                                <tbody>
+                                    {apiList.length > 0 ? (
+                                        apiList.map((data, index) => (
+                                            <tr key={data._id} className={data.newData ? 'pop-in' : ''}>
+                                                {modalData.fields.map((field, index) => (
+                                                    field.withForeign ? (
+                                                        data[field.name] == null ? (
+                                                            <td>No Data Assigned.</td>
+                                                        ) : (
+                                                            <td>{data[field.requestFor]}</td>
+                                                        )
+                                                    ) : (
+                                                        <td>{data[field.name]}</td>
+                                                    )
+                                                    
+                                                ))}
+                                                <td className='table-control'>
+                                                    <span className='table-icon prime-icon' onClick={() => loadModalEdit()}><MdModeEdit /></span>
+                                                    <span className='table-icon neutral-icon'><IoMdEye /></span>
+                                                    <span className='table-icon warning-icon'><IoMdAlert /></span>
+                                                    <span className='table-icon danger-icon' onClick={() => deleteHandler(data._id)}><IoMdTrash /></span>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>No Data Available.</tr>
+                                    )}
+                                </tbody>
+                        
+                    </table>
+            }
             </div>
         </div>
     );

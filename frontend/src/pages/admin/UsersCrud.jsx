@@ -31,6 +31,7 @@ const UsersCrud = () => {
               value: formState.first_name, 
               onChange: (e) => setFormState({ ...formState, email: e.target.value }),
               required: true,
+              withForeign: false,
             },
             {
               label: 'Password',
@@ -40,6 +41,7 @@ const UsersCrud = () => {
               value: formState.last_name, 
               onChange: (e) => setFormState({ ...formState, password: e.target.value }),
               required: true,
+              withForeign: false,
             },
             {
               label: 'Role',
@@ -52,7 +54,9 @@ const UsersCrud = () => {
               options: [{"_id": "Instructor", 'title': 'Instructor'},
                           {"_id": "Learner", 'title': 'Learner'},
                           {"_id": "Admin", 'title': 'Admin'}
-                        ]
+                        ],
+              requestFor: 'title',
+              withForeign: false,
             },
             {
               label: 'Status',
@@ -66,7 +70,68 @@ const UsersCrud = () => {
                           {"_id": "Inactive", 'title': 'Inactive'},
                           {"_id": "Suspended", 'title': 'Suspended'},
                           {"_id": "Banned", 'title': 'Banned'}
-                        ]
+                        ],
+              requestFor: 'title',
+              withForeign: false,
+            },
+          ]
+      };
+
+      const editData = {
+        title: 'Edit User',
+        content: 'Change the following field, as desired, to update this user.',
+        fields: [
+            {
+              label: 'Email',
+              type: 'text',
+              name: 'email',
+              placeholder: 'Enter Email',
+              className: 'input-field',
+              value: formState.first_name, 
+              onChange: (e) => setFormState({ ...formState, email: e.target.value }),
+              required: true,
+              withForeign: false,
+            },
+            {
+              label: 'Password',
+              type: 'password',
+              name: 'password',
+              placeholder: 'Enter Password',
+              value: formState.last_name, 
+              onChange: (e) => setFormState({ ...formState, password: e.target.value }),
+              required: true,
+              withForeign: false,
+            },
+            {
+              label: 'Role',
+              type: 'select',
+              name: 'role',
+              placeholder: 'Enter Role',
+              value: formState.role,
+              onChange: (e) => setFormState({ ...formState, role: e.target.value }),
+              required: true,
+              options: [{"_id": "Instructor", 'title': 'Instructor'},
+                          {"_id": "Learner", 'title': 'Learner'},
+                          {"_id": "Admin", 'title': 'Admin'}
+                        ],
+              requestFor: 'title',
+              withForeign: false,
+            },
+            {
+              label: 'Status',
+              type: 'select',
+              name: 'status',
+              placeholder: 'Enter Status',
+              value: formState.status,
+              onChange: (e) => setFormState({ ...formState, status: e.target.value }),
+              required: true,
+              options: [{"_id": "Active", 'title': 'Active'},
+                          {"_id": "Inactive", 'title': 'Inactive'},
+                          {"_id": "Suspended", 'title': 'Suspended'},
+                          {"_id": "Banned", 'title': 'Banned'}
+                        ],
+              requestFor: 'title',
+              withForeign: false,
             },
           ]
       };
@@ -201,6 +266,7 @@ const UsersCrud = () => {
           setModalOpen={setModalOpen}
           crudType={"user"}
           deleteHandler={deleteUser}
+          editData={editData}
         />
     </div>
   )

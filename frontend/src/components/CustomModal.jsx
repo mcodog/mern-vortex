@@ -54,7 +54,7 @@ const CustomModal = ({ setOpenModal, modalData: { title, content, fields }, hand
               </div>
             ) :
             
-            field.type == 'text' || field.type == 'textarea' || field.type == 'password' ||  field.type == 'email' ? (
+            field.type == 'text' || field.type == 'textarea' || field.type == 'password' ||  field.type == 'email' || field.type == 'number' ?(
               <div key={field.name} className="input-group">
               <label>{field.label}</label>
               <input 
@@ -84,7 +84,7 @@ const CustomModal = ({ setOpenModal, modalData: { title, content, fields }, hand
                       <option></option>
                     ) : (
                         field.options.map((option, index) => (
-                        <option key={index} value={option._id}>{option.title}</option>
+                        <option key={index} value={option._id}>{option[field.requestFor]}</option>
                       ))
                     )
                   }
