@@ -1,4 +1,4 @@
-import CustomModal from './CustomModal';
+import CreateModal from './CreateModal';
 import React, { useState, useEffect } from 'react';
 import { FaPlus } from "react-icons/fa";
 import { BiSolidTrashAlt, BiSolidMessageSquareEdit } from "react-icons/bi";
@@ -28,7 +28,7 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
     const [delayedLoading, setDelayedLoading] = useState(true); 
     const delayDuration = 1000; 
 
-    const [loadedData, setLoadedData] = useState({})
+    const [loadedData, setLoadedData] = useState(null)
 
     useEffect(() => {
         if (!loading) {
@@ -46,6 +46,7 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
     console.log("modalData", modalData)
 
     const loadModalCreate = () => {
+        console.log("passedData", modalData)
         setLoadedData(modalData)
         setModalOpen(true)
     }
@@ -77,7 +78,7 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                         classNames="modal"
                         unmountOnExit
                     >
-                        <CustomModal modalData={loadedData} setOpenModal={setModalOpen} handleSubmit={handleSubmit} />
+                        <CreateModal modalData={modalData} setOpenModal={setModalOpen} handleSubmit={handleSubmit} />
                     </CSSTransition>
 
                 </div>

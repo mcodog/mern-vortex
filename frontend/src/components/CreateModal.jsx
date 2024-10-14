@@ -2,8 +2,8 @@ import React from 'react'
 import './styles/Modal.css'
 import './styles/ModalAnims.css'
 
-const CustomModal = ({ setOpenModal, modalData: { title, content, fields }, handleSubmit  }) => {
-  console.log(fields.options)
+const CreateModal = ({ setOpenModal, modalData: { title, content, fields }, handleSubmit  }) => {
+  console.log(fields)
   return (
     <div 
       className="modalBackground" 
@@ -23,7 +23,6 @@ const CustomModal = ({ setOpenModal, modalData: { title, content, fields }, hand
         <form className="crud-form" onSubmit={handleSubmit}>
           {fields.map((field, index) => (
             field.col ? (
-
               <div key={index} className="input-group-col">
 
                 <div className="col">
@@ -96,7 +95,7 @@ const CustomModal = ({ setOpenModal, modalData: { title, content, fields }, hand
           ))}
           
           <div className="form-control">
-            <button className='secondary-button' onClick={() => {setOpenModal(false)}}>Cancel</button>
+            <span className='secondary-button' onClick={() => {setOpenModal(false)}}>Cancel</span>
             <button className='prime-button' type="submit">Submit</button>
           </div>
         </form>
@@ -106,4 +105,4 @@ const CustomModal = ({ setOpenModal, modalData: { title, content, fields }, hand
   )
 }
 
-export default CustomModal
+export default CreateModal
