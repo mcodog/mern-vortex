@@ -6,12 +6,24 @@ import { FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 
 const UsersCrud = () => {
     const [modalOpen, setModalOpen] = useState(false);
+    const [editModal, setEditModal] = useState(false);
     const [formState, setFormState] = useState({
         email: '',
         password: '',
         role: '',
         status: '',
       });
+
+    const [editForm, setEditForm] = useState({
+        email: '',
+        password: '',
+        role: '',
+        status: '',
+      });
+
+    const resetFormState = () => {
+      setFormState({ email: '', password: '', role: '', status: '' }); 
+    }
 
     const crudData = {
         crudTitle: "User",
@@ -87,8 +99,8 @@ const UsersCrud = () => {
               name: 'email',
               placeholder: 'Enter Email',
               className: 'input-field',
-              value: formState.email, 
-              onChange: (e) => setFormState({ ...formState, email: e.target.value }),
+              value: editForm.email, 
+              onChange: (e) => setEditForm({ ...editForm, email: e.target.value }),
               required: true,
               withForeign: false,
             },
@@ -97,8 +109,8 @@ const UsersCrud = () => {
               type: 'password',
               name: 'password',
               placeholder: 'Enter Password',
-              value: formState.password, 
-              onChange: (e) => setFormState({ ...formState, password: e.target.value }),
+              value: editForm.password, 
+              onChange: (e) => setEditForm({ ...editForm, password: e.target.value }),
               required: true,
               withForeign: false,
             },
@@ -107,8 +119,8 @@ const UsersCrud = () => {
               type: 'select',
               name: 'role',
               placeholder: 'Enter Role',
-              value: formState.role,
-              onChange: (e) => setFormState({ ...formState, role: e.target.value }),
+              value: editForm.role,
+              onChange: (e) => setEditForm({ ...editForm, role: e.target.value }),
               required: true,
               options: [{"_id": "Instructor", 'title': 'Instructor'},
                           {"_id": "Learner", 'title': 'Learner'},
@@ -122,8 +134,8 @@ const UsersCrud = () => {
               type: 'select',
               name: 'status',
               placeholder: 'Enter Status',
-              value: formState.status,
-              onChange: (e) => setFormState({ ...formState, status: e.target.value }),
+              value: editForm.status,
+              onChange: (e) => setEditForm({ ...editForm, status: e.target.value }),
               required: true,
               options: [{"_id": "Active", 'title': 'Active'},
                           {"_id": "Inactive", 'title': 'Inactive'},
@@ -267,6 +279,9 @@ const UsersCrud = () => {
           crudType={"user"}
           deleteHandler={deleteUser}
           editData={editData}
+          editModal={editModal}
+          setEditModal={setEditModal}
+          resetFormState={resetFormState}
         />
     </div>
   )

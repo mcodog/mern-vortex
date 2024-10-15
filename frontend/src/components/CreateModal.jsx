@@ -2,13 +2,13 @@ import React from 'react'
 import './styles/Modal.css'
 import './styles/ModalAnims.css'
 
-const CreateModal = ({ setOpenModal, modalData: { title, content, fields }, handleSubmit  }) => {
+const CreateModal = ({ setOpenModal, modalData: { title, content, fields }, handleSubmit, closeModals  }) => {
   console.log(fields)
   return (
     <div 
       className="modalBackground" 
       onClick={() => {
-        setOpenModal(false);
+        closeModals();
       }}
     >
       <div 
@@ -95,7 +95,7 @@ const CreateModal = ({ setOpenModal, modalData: { title, content, fields }, hand
           ))}
           
           <div className="form-control">
-            <span className='secondary-button' onClick={() => {setOpenModal(false)}}>Cancel</span>
+            <span className='secondary-button' onClick={() => {closeModals()}}>Cancel</span>
             <button className='prime-button' type="submit">Submit</button>
           </div>
         </form>

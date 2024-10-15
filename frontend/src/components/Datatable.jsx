@@ -1,4 +1,5 @@
 import CreateModal from './CreateModal';
+import EditModal from './EditModal';
 import React, { useState, useEffect } from 'react';
 import { FaPlus } from "react-icons/fa";
 import { BiSolidTrashAlt, BiSolidMessageSquareEdit } from "react-icons/bi";
@@ -22,7 +23,10 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
         setModalOpen,
         crudType,
         deleteHandler,
-        editData,  }) => {
+        editData,
+        editModal,
+        setEditModal,
+        resetFormState  }) => {
 
     const [loading] = useAxiosLoader(axiosInstance)
     const [delayedLoading, setDelayedLoading] = useState(true); 
@@ -53,7 +57,13 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
 
     const loadModalEdit = () => {
         setLoadedData(editData)
-        setModalOpen(true)
+        setEditModal(true)
+    }
+
+    const closeModals = () => {
+        setModalOpen(false)
+        setEditModal(false)
+        resetFormState()
     }
     
     return (
@@ -78,8 +88,19 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                         classNames="modal"
                         unmountOnExit
                     >
-                        <CreateModal modalData={modalData} setOpenModal={setModalOpen} handleSubmit={handleSubmit} />
+                        <CreateModal modalData={modalData} closeModals={closeModals} handleSubmit={handleSubmit} />
                     </CSSTransition>
+
+                    <CSSTransition
+                        in={editModal}
+                        timeout={300}
+                        classNames="modal"
+                        unmountOnExit
+                    >
+                        <EditModal  modalData={editData} closeModals={closeModals} handleSubmit={handleSubmit}/>
+                    </CSSTransition>
+
+
 
                 </div>
             </div>
