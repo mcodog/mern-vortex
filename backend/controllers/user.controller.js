@@ -11,6 +11,17 @@ export const getUser = async (request, response) => {
     }
 };
 
+export const getOneUser = async (request, response) => {
+    try {
+        const { id } = request.params;
+        const user = await User.findById(id);
+        response.status(200).json({ success: true, message: "Users Retrieved.", data: user });
+    } catch (error) {
+        console.log("Error in fetching Users: ", error.message);
+        response.status(500).json({ success: false, message: "Server Error."});
+    }
+};
+
 export const createUser = async (request, response) => {
     const user = request.body;
     
@@ -22,7 +33,7 @@ export const createUser = async (request, response) => {
 
     try {
         await newUser.save();
-        response.status(201).json({ success:true, data: newUser, message: "Category created Successfully!"});
+        response.status(201).json({ success:true, data: newUser, message: "User created Successfully!"});
     } catch (error) {
         console.error("Error in Create User:", error.message);
         response.status(500).json({ success: false, message: "Server Error: Error in Creating User."});
@@ -39,8 +50,8 @@ export const updateUser = async (request, response) => {
     }
 
     try {
-        const updatedUser = await Category.findByIdAndUpdate(id, user, {new:true});
-        response.status(200).json({ success:true, data:updatedUser });
+        const updatedUser = await User.findByIdAndUpdate(id, user, {new:true});
+        response.status(200).json({ success:true, data:updatedUser, message: "User Successfully Updated!"});
     } catch (error) {
         response.status(500).json({ success: false, message: "Server Error: Error in Updating User."})
     }

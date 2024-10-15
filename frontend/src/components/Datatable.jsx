@@ -26,7 +26,9 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
         editData,
         editModal,
         setEditModal,
-        resetFormState  }) => {
+        resetFormState,
+        getDataFromId,
+        updateForm  }) => {
 
     const [loading] = useAxiosLoader(axiosInstance)
     const [delayedLoading, setDelayedLoading] = useState(true); 
@@ -65,6 +67,11 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
         setEditModal(false)
         resetFormState()
     }
+
+    const openEditModal = (id) => {
+        getDataFromId(id)
+        loadModalEdit()
+    }
     
     return (
         <div className="data-table">
@@ -97,7 +104,7 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                         classNames="modal"
                         unmountOnExit
                     >
-                        <EditModal  modalData={editData} closeModals={closeModals} handleSubmit={handleSubmit}/>
+                        <EditModal  modalData={editData} closeModals={closeModals} updateForm={updateForm}/>
                     </CSSTransition>
 
 
@@ -146,7 +153,7 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                                                     
                                                 ))}
                                                 <td className='table-control'>
-                                                    <span className='table-icon prime-icon' onClick={() => loadModalEdit()}><MdModeEdit /></span>
+                                                    <span className='table-icon prime-icon' onClick={() => openEditModal(data._id)}><MdModeEdit /></span>
                                                     <span className='table-icon neutral-icon'><IoMdEye /></span>
                                                     <span className='table-icon warning-icon'><IoMdAlert /></span>
                                                     <span className='table-icon danger-icon' onClick={() => deleteHandler(data._id)}><IoMdTrash /></span>

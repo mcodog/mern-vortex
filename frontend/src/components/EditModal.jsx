@@ -2,7 +2,7 @@ import React from 'react'
 import './styles/Modal.css'
 import './styles/ModalAnims.css'
 
-const EditModal = ({ setOpenModal, modalData: { title, content, fields }, handleSubmit,closeModals  }) => {
+const EditModal = ({ setOpenModal, modalData: { title, content, fields }, updateForm, closeModals  }) => {
   return (
     <div 
         className="modalBackground" 
@@ -19,7 +19,7 @@ const EditModal = ({ setOpenModal, modalData: { title, content, fields }, handle
             <svg className="modal-svg" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="none">
             <rect x="0" y="0" fill="none" width="100%" height="100%" rx="3" ry="3"></rect>
             </svg>
-            <form className="crud-form" onSubmit={handleSubmit}>
+            <form className="crud-form" onSubmit={updateForm}>
             {fields.map((field, index) => (
                 field.col ? (
                 <div key={index} className="input-group-col">
@@ -95,7 +95,7 @@ const EditModal = ({ setOpenModal, modalData: { title, content, fields }, handle
             
             <div className="form-control">
                 <span className='secondary-button' onClick={() => {closeModals()}}>Cancel</span>
-                <button className='prime-button' type="submit">Submit</button>
+                <span className='prime-button' onClick={() => {updateForm()}}>Submit</span>
             </div>
             </form>
 
