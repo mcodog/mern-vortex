@@ -3,33 +3,20 @@ import Datatable from '../../components/Datatable'
 import axios from "axios"
 import toast from 'react-hot-toast'
 import { FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
+import { fetchData, fetchDataN, createFunc, addToTable, updateFunc, addAndRemoveToTable, deleteFunc } from './Utils/CrudUtils'
 
 const UsersCrud = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [editModal, setEditModal] = useState(false);
-    const [formState, setFormState] = useState({
-        email: '',
-        password: '',
-        role: '',
-        status: '',
-      });
+    const [users, setUsers] = useState([]);
 
-    const [editForm, setEditForm] = useState({
-        _id: '',
-        email: '',
-        password: '',
-        role: '',
-        status: '',
-      });
+    const [formState, setFormState] = useState({email: '', password: '', role: '', status: '',});
+
+    const [editForm, setEditForm] = useState({_id: '', email: '', password: '', role: '', status: '',});
 
     const resetFormState = () => {
       setFormState({ email: '', password: '', role: '', status: '' }); 
     }
-
-    const crudData = {
-        crudTitle: "User",
-        content: "Fill in the details for the new item you want to add."
-    };
 
     const modalData = {
         title: 'Create New User',
@@ -149,19 +136,8 @@ const UsersCrud = () => {
           ]
       };
 
-  const [users, setUsers] = useState([]);
-  const fetchUsers = async() => {
-    try {
-      const response = await axios.get("http://localhost:8000/api/user")
-      setUsers(response.data.data)
-      console.log(response.data.data)
-    } catch (error) {
-      console.log("Error while fetching User Data", error)
-    }
-  }
-
   useEffect(() => {
-    fetchUsers()
+    fetchData('user', setUsers)
   }, [])
 
   function animateValue(obj, start, end, duration) {
@@ -178,97 +154,46 @@ const UsersCrud = () => {
   }
 
   const loadUserData = async (id) => {
-    try {
-      const data = await axios.get(`http://localhost:8000/api/user/${id}`)
-      setEditForm(data.data.data)
-      console.log(editForm._id)
-    } catch(error) {
-      console.log("Error",  error)
-    }
+    const response = await fetchDataN('user', id)
+    setEditForm(response.data.data)
   }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(formState)
-    try {
-      const response = await axios.post("http://localhost:8000/api/user", formState);
-      console.log("User created successfully.", response);
-      toast.success(response.data.message, { position: "top-right" })
+    const response = await createFunc('user', formState);
 
-      const newUser = {
-        _id: response.data.data._id,
-        email: formState.email,
-        password: formState.password,
-        role: formState.role,
-        status: formState.status,
-        newData: true
+    const newUser = {
+      _id: response.data.data._id,
+      email: formState.email,
+      password: formState.password,
+      role: formState.role,
+      status: formState.status,
+      newData: true
     };
 
-      setUsers((prevUser) => [newUser, ...prevUser]);
-      setFormState({ email: '', password: '', role: '', status: '' }); 
-      setModalOpen(false);
-
-      setTimeout(() => {
-        setUsers(prevUser => 
-            prevUser.map(user => 
-              user._id === newUser._id ? { ...user, newData: false } : user
-            )
-        );
-    }, 800);
-    } catch (error) {
-      console.log("Error creating User:", error);
-    }
-    console.log(formState);
+    addToTable(setUsers, newUser)
+    setFormState({ email: '', password: '', role: '', status: '' }); 
+    setModalOpen(false);
   };
 
-  const deleteUser = async (userId) => {
-    console.log("Init Delete")
-    await axios.delete(`http://localhost:8000/api/user/${userId}`)
-    .then((response) => {
-      setUsers((prevUser) => prevUser.filter((user) => user._id !== userId));
-      toast.success(response.data.message, {position:"top-right"})
-    })
-    
-    .catch((error) => {
-      console.log("Error in User Delete", error)
-    })
-  }
-
-  const updateUser = async (e) => {
-    // e.preventDefault();
-    try {
-      const response = await axios.put(`http://localhost:8000/api/user/${editForm._id}`, editForm)
-      setEditForm({ email: '', password: '', role: '', status: '' }); 
-      toast.success(response.data.message, { position: "top-right" })
-
-      const newUser = {
+  const updateUser = async () => {
+    const response = await updateFunc('user', editForm._id, editForm)
+    const newUser = {
         _id: response.data.data._id,
         email: editForm.email,
         password: editForm.password,
         role: editForm.role,
         status: editForm.status,
         newData: true
-    };
+      };
 
-    console.log("New", newUser)
-
-      setUsers((prevUser) => [newUser, ...prevUser]);
+      addAndRemoveToTable(setUsers, newUser)
       setEditForm({ email: '', password: '', role: '', status: '' }); 
       setEditModal(false);
+  }
 
-      setTimeout(() => {
-        setUsers(prevUser => {
-            // Remove the user with the same _id
-            const updatedUsers = prevUser.filter(user => user._id !== newUser._id);
-    
-            // Prepend the new user with newData set to false
-            return [{ ...newUser, newData: false }, ...updatedUsers]; // Add the new user at the beginning
-        });
-    }, 800);
-    
-    } catch(error) {
-      console.log("Error", error)
-    }
+  const deleteUser = async (userId) => {
+    deleteFunc('user', userId, setUsers)
   }
 
   const totalUser = document.getElementById("totalUser");
@@ -318,7 +243,6 @@ const UsersCrud = () => {
       </div>
     </div>
         <Datatable 
-          crudData={crudData}
           modalData={modalData}
           handleSubmit={handleSubmit}
           apiData={users} 
