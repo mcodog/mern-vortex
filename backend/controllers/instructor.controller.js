@@ -11,6 +11,17 @@ export const getInstructor = async (request, response) => {
     }
 };
 
+export const getOneInstructor = async (request, response) => {
+    try {
+        const { id } = request.params;
+        const instructor = await Instructor.findById(id);
+        response.status(200).json({ success: true, message: "Instructor Retrieved.", data: instructor });
+    } catch (error) {
+        console.log("Error in fetching Instructor: ", error.message);
+        response.status(500).json({ success: false, message: "Server Error."});
+    }
+};
+
 export const createInstructor = async (request, response) => {
     const instructor = request.body;
     

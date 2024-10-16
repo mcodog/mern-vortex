@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Datatable from '../../components/Datatable'
-import axios from "axios"
-import toast from 'react-hot-toast'
 import { FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 import { fetchData, fetchDataN, createFunc, addToTable, updateFunc, addAndRemoveToTable, deleteFunc } from './Utils/CrudUtils'
 

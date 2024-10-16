@@ -21,6 +21,17 @@ export const getSpec = async (request, response) => {
     }
 };
 
+export const getOneSpec = async (request, response) => {
+    try {
+        const { id } = request.params;
+        const spec = await Spec.findById(id);
+        response.status(200).json({ success: true, message: "Specs Retrieved.", data: spec });
+    } catch (error) {
+        console.log("Error in fetching Specs: ", error.message);
+        response.status(500).json({ success: false, message: "Server Error."});
+    }
+};
+
 export const createSpec = async (request, response) => {
     const spec = request.body;
     

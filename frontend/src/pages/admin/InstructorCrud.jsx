@@ -4,30 +4,20 @@ import { deleteInstructor } from '../../../../backend/controllers/instructor.con
 import axios from "axios"
 import toast from 'react-hot-toast'
 import { FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
+import { fetchData, fetchDataN, createFunc, addToTable, updateFunc, addAndRemoveToTable, deleteFunc } from './Utils/CrudUtils'
 
 const InstructorCrud = () => {
   const [modalOpen, setModalOpen] = useState(false);
-
+  const [editModal, setEditModal] = useState(false);
   const [categoryOptions, setCategoryOptions] = useState({})
+  const [instructor, setInstructor] = useState([])
+
   const getOptionsSpecs = async () => {
-    try {
-      const response = await axios.get("http://localhost:8000/api/user")
-      console.log(response.data.data)
-      setCategoryOptions(response.data.data)
-    } catch (error) {
-      console.log("Error while fetching Category Data", error)
-    }
+    fetchData('user', setCategoryOptions)
   }
 
-    const [formState, setFormState] = useState({
-        first_name: '',
-        last_name: '',
-        expertise: '',
-        age: '',
-        gender: '',
-        address: '',
-        user: '',
-      });
+    const [formState, setFormState] = useState({first_name: '', last_name: '', expertise: '', age: '', gender: '', address: '', user: '',});
+    const [editForm, setEditForm] = useState({_id: '', first_name: '', last_name: '', expertise: '', age: '', gender: '', address: '', user: '',});
 
     const crudData = {
         crudTitle: "User",
@@ -103,70 +93,128 @@ const InstructorCrud = () => {
         ]
       };
 
-      const [instructor, setInstructor] = useState([])
-      const fetchInstructor = async() => {
-        try {
-          const response = await axios.get("http://localhost:8000/api/instructor")
-          setInstructor(response.data.data)
-          // console.log(response.data.data)
-        } catch (error) {
-          console.log("Error while fetching User Data", error)
-        }
-      }
+    const editData = {
+        title: 'Edit Instructor',
+        content: 'Fill out the form below to create a new user.',
+        fields: [
+          {
+            label: 'First Name',
+            type: 'text',
+            name: 'first_name',
+            placeholder: 'Enter First Name',
+            className: 'input-field',
+            value: editForm.first_name, 
+            onChange: (e) => setEditForm({ ...editForm, first_name: e.target.value }),
+            required: true,
+            withForeign: false,
 
-      useEffect(() => {
-        fetchInstructor()
-        getOptionsSpecs()
-      }, [])
-
-      const handleSubmit = async (event) => {
-        event.preventDefault();
-        console.log(formState)
-        try {
-          const response = await axios.post("http://localhost:8000/api/instructor", formState);
-          console.log("Instructor created successfully.", response);
-          toast.success(response.data.message, { position: "top-right" })
-
-          const newUser = {
-            _id: response.data.data._id,
-            first_name: formState.email,
-            last_name: formState.password,
-            age: formState.role,
-            gender: formState.status,
-            address: formState.status,
-            user: formState.status,
-            newData: true
-        };
-
-        setUsers((prevUser) => [newUser, ...prevUser]);
-          setFormState({ first_name: '', last_name: '', age: '', gender: '', address: '', user: '' }); 
-          setModalOpen(false);
-
-          setTimeout(() => {
-            setUsers(prevUser => 
-                prevUser.map(user => 
-                  user._id === newUser._id ? { ...user, newData: false } : user
-                )
-            );
-        }, 800);
-        } catch (error) {
-          console.log("Error creating User:", error);
-        }
-        console.log(formState);
+            label2: 'Last Name',
+            type2: 'text',
+            name2: 'last_name',
+            placeholder2: 'Enter Last Name',
+            value2: editForm.last_name, 
+            onChange2: (e) => setEditForm({ ...editForm, last_name: e.target.value }),
+            required2: true,
+            col: true,
+          },
+          {
+            label: 'Age',
+            type: 'number',
+            name: 'age',
+            placeholder: 'Enter Age',
+            value: editForm.age,
+            onChange: (e) => setEditForm({ ...editForm, age: e.target.value }),
+            required: true,
+            withForeign: false,
+          },
+          {
+            label: 'Gender',
+            type: 'text',
+            name: 'gender',
+            placeholder: 'Enter Gender',
+            value: editForm.gender,
+            onChange: (e) => setEditForm({ ...editForm, gender: e.target.value }),
+            required: true,
+            withForeign: false,
+          },
+          {
+            label: 'Address',
+            type: 'text',
+            name: 'address',
+            placeholder: 'Enter Address',
+            value: editForm.address,
+            onChange: (e) => setEditForm({ ...editForm, address: e.target.value }),
+            required: true,
+            withForeign: false,
+          },
+          {
+            label: 'User',
+            type: 'select',
+            name: 'user',
+            placeholder: 'Enter User',
+            value: editForm.user, 
+            onChange: (e) => setEditForm({ ...editForm, user: e.target.value }),
+            required: true,
+            options: categoryOptions,
+            requestFor: 'email',
+            withForeign: false,
+          },
+        ]
       };
 
-      const deleteInstructor = async (userId) => {
-        console.log("Init Delete")
-        await axios.delete(`http://localhost:8000/api/instructor/${userId}`)
-        .then((response) => {
-          setUsers((prevUser) => prevUser.filter((user) => user._id !== userId));
-          toast.success(response.data.message, {position:"top-right"})
-        })
-        
-        .catch((error) => {
-          console.log("Error in Instructor Delete", error)
-        })
-      }
+  useEffect(() => {
+    fetchData('instructor', setInstructor)
+    getOptionsSpecs()
+  }, [])
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const response = await createFunc('instructor', formState);
+
+    const newInsturctor = {
+      _id: response.data.data._id,
+      first_name: formState.first_name,
+      last_name: formState.last_name,
+      expertise: formState.expertise,
+      age: formState.age,
+      gender: formState.gender,
+      address: formState.address,
+      user: formState.user,
+      newData: true
+    };
+    
+    addToTable(setInstructor, newInsturctor)
+    setFormState({first_name: '', last_name: '', expertise: '', age: '', gender: '', address: '', user: '',})
+    setModalOpen(false);
+  };
+
+  const updateInstructor = async () => {
+    const response = await updateFunc('instructor', editForm._id, editForm)
+    const newInstructor = {
+        _id: response.data.data._id,
+        first_name: editForm.first_name,
+        last_name: editForm.last_name,
+        expertise: editForm.expertise,
+        age: editForm.age,
+        gender: editForm.gender,
+        address: editForm.address,
+        user: editForm.user,
+        newData: true,
+      };
+
+      addAndRemoveToTable(setInstructor, newInstructor)
+      setFormState({first_name: '', last_name: '', expertise: '', age: '', gender: '', address: '', user: '',})
+      setEditModal(false);
+  }
+
+  const deleteInstructor = async (id) => {
+    deleteFunc('instructor', id, setInstructor)
+  }
+
+  const loadDataById = async (id) => {
+    const response = await fetchDataN('instructor', id)
+    setEditForm(response.data.data)
+  }
     
   return (
     <div className="main-panel__column">
@@ -193,6 +241,11 @@ const InstructorCrud = () => {
           setModalOpen={setModalOpen}
           crudType={"instructor"}
           deleteHandler={deleteInstructor}
+          editData={editData}
+          editModal={editModal}
+          setEditModal={setEditModal}
+          getDataFromId={loadDataById}
+          updateForm={updateInstructor}
         />
     </div>
   )

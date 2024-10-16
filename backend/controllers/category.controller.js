@@ -11,6 +11,17 @@ export const getCategory = async (request, response) => {
     }
 };
 
+export const getOneCategory = async (request, response) => {
+    try {
+        const { id } = request.params;
+        const category = await Category.findById(id);
+        response.status(200).json({ success: true, message: "Category Retrieved.", data: category });
+    } catch (error) {
+        console.log("Error in fetching Category: ", error.message);
+        response.status(500).json({ success: false, message: "Server Error."});
+    }
+};
+
 export const createCategory = async (request, response) => {
     const category = request.body;
     
