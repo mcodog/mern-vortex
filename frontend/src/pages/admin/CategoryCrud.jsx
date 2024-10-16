@@ -3,26 +3,34 @@ import Datatable from '../../components/Datatable'
 import axios from "axios"
 import toast from 'react-hot-toast'
 import { FaArrowTrendUp, FaArrowTrendDown  } from "react-icons/fa6";
+import { fetchData, fetchDataN, createFunc, addToTable, updateFunc, addAndRemoveToTable, deleteFunc } from './Utils/CrudUtils'
 
 const CategoryCrud = () => {
   const [categoryOptions, setCategoryOptions] = useState({})
-  const getOptionsSpecs = async () => {
-    try {
-      const response = await axios.get("http://localhost:8000/api/category")
-      console.log(response.data.data)
-      setCategoryOptions(response.data.data)
-    } catch (error) {
-      console.log("Error while fetching Category Data", error)
-    }
-  }
+  const [categories, setCategories] = useState([]);
+  const [specs, setSpecs] = useState([]);
+  const [catModalOpen, catSetModalOpen] = useState(false);
+  const [specModalOpen, specSetModalOpen] = useState(false);
+  const [catEditModalOpen, catEditSetModalOpen] = useState(false);
+  const [specEditModalOpen, specEditSetModalOpen] = useState(false);
 
-const [catModalOpen, catSetModalOpen] = useState(false);
-const [specModalOpen, specSetModalOpen] = useState(false);
-const [catFormState, catSetFormState] = useState({
+  const [catFormState, catSetFormState] = useState({
     title: '',
     description: '',
   });
+
+  const [catEditForm, setCatEditForm] = useState({
+    title: '',
+    description: '',
+  });
+
 const [specFormState, specSetFormState] = useState({
+    title: '',
+    description: '',
+    category: ''
+  });
+
+const [specEditForm, setSpecEditForm] = useState({
     title: '',
     description: '',
     category: ''
@@ -42,7 +50,7 @@ const categoryData = {
         type: 'text',
         name: 'title',
         placeholder: 'Enter Title',
-        value: catFormState.name, 
+        value: catFormState.title, 
         onChange: (e) => catSetFormState({ ...catFormState, title: e.target.value }),
         required: true,
       },
@@ -51,8 +59,33 @@ const categoryData = {
         type: 'textarea',
         name: 'description',
         placeholder: 'Enter Description',
-        value: catFormState.name, 
+        value: catFormState.description, 
         onChange: (e) => catSetFormState({ ...catFormState, description: e.target.value }),
+        required: true,
+      },
+    ]
+  };
+
+const editCatData = {
+    title: 'Edit Category',
+    content: 'Fill out the form below to create a new user.',
+    fields: [
+      {
+        label: 'Title',
+        type: 'text',
+        name: 'title',
+        placeholder: 'Enter Title',
+        value: catEditForm.title, 
+        onChange: (e) => setCatEditForm({ ...catEditForm, title: e.target.value }),
+        required: true,
+      },
+      {
+        label: 'Description',
+        type: 'textarea',
+        name: 'description',
+        placeholder: 'Enter Description',
+        value: catEditForm.description, 
+        onChange: (e) => setCatEditForm({ ...catEditForm, description: e.target.value }),
         required: true,
       },
     ]
@@ -97,125 +130,131 @@ const specsData = {
     ]
   };
 
-  const [categories, setCategories] = useState([]);
-  const fetchCategories = async() => {
-    try {
-      const response = await axios.get("http://localhost:8000/api/category")
-      setCategories(response.data.data)
-    } catch (error) {
-      console.log("Error while fetching Category Data", error)
-    }
-  }
-
-  const [specs, setSpecs] = useState([]);
-  const fetchSpecs = async() => {
-    try {
-      const response = await axios.get("http://localhost:8000/api/specialization")
-      setSpecs(response.data.data)
-      // console.log("Data: ", response.data.data)
-    } catch (error) {
-      console.log("Error while fetching Specialization Data", error)
-    }
-  }
+const editSpecData = {
+    title: 'Edit Specialization',
+    content: 'Fill out the form below to create a new specialization.',
+    fields: [
+      {
+        label: 'Title',
+        type: 'text',
+        name: 'title',
+        placeholder: 'Enter Title',
+        value: specEditForm.title,
+        onChange: (e) => setSpecEditForm({ ...specEditForm, title: e.target.value }),
+        required: true,
+        withForeign: false,
+      },
+      {
+        label: 'Description',
+        type: 'textarea',
+        name: 'description',
+        placeholder: 'Enter Description',
+        value: specEditForm.description, 
+        onChange: (e) => setSpecEditForm({ ...specEditForm, description: e.target.value }),
+        required: true,
+        withForeign: false,
+      },
+      {
+        label: 'Category',
+        type: 'select',
+        name: 'category',
+        placeholder: 'Enter Category',
+        value: specEditForm.category, 
+        onChange: (e) => setSpecEditForm({ ...specEditForm, category: e.target.value }),
+        required: true,
+        options: categoryOptions,
+        requestFor: 'title',
+        withForeign: true,
+      },
+    ]
+  };
 
   useEffect(() => {
-    fetchCategories()
-    fetchSpecs()
-    getOptionsSpecs()
+    fetchData('category', setCategories)
+    fetchData('specialization', setSpecs)
+    fetchData('category', setCategoryOptions)
   }, [])
 
   const catHandleSubmit = async (event) => {
     event.preventDefault();
+    const response = await createFunc('category', catFormState);
 
-    try {
-      const response = await axios.post("http://localhost:8000/api/category", catFormState);
-      console.log("Category created successfully.", response);
-      toast.success(response.data.message, { position: "top-right" })
-
-      const newCategory = {
-          _id: response.data.data._id,
-          title: catFormState.title,
-          description: catFormState.description,
-          newData: true
-      };
-
-      setCategories((prevCategories) => [newCategory, ...prevCategories]);
-      catSetFormState({ title: '', description: '' }); 
-      catSetModalOpen(false);
-      getOptionsSpecs()
-      setTimeout(() => {
-        setCategories(prevCategories => 
-            prevCategories.map(category => 
-                category._id === newCategory._id ? { ...category, newData: false } : category
-            )
-          );
-      }, 800);
-    } catch (error) {
-      console.log("Error creating category:", error);
-    }
-    // console.log(catFormState);
+    const newCategory = {
+      _id: response.data.data._id,
+      title: catFormState.title,
+      description: catFormState.description,
+      newData: true
+    };
+    
+    addToTable(setCategories, newCategory)
+    catSetFormState({title: '', description: '',})
+    catSetModalOpen(false);
   };
 
   const specHandleSubmit = async (event) => {
     event.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:8000/api/specialization", specFormState);
-      console.log("Specialization created successfully.", response);
-      toast.success(response.data.message, { position: "top-right" })
-      const { _id, category } = response.data.data;
+    const response = await createFunc('specialization', specFormState);
 
-      // console.log(_id);           
-      // console.log(categoryTitle);  
-      const newSpecs = {
-          _id: _id,
-          title: specFormState.title,
-          description: specFormState.description,
-          category: category,
-          newData: true
-      };
-
-      console.log(newSpecs)
-
-      setSpecs((prevSpecs) => [newSpecs, ...prevSpecs]);
-      specSetModalOpen(false);
-      setTimeout(() => {
-        setSpecs(prevSpecs => 
-            prevSpecs.map(specs => 
-              specs._id === specs._id ? { ...specs, newData: false } : specs
-            )
-          );
-      }, 800);
-    } catch (error) {
-      console.log("Error creating category:", error);
-    }
-    specSetFormState({ title: '', description: '', category: '' }); 
-    // console.log(specFormState);
+    const newSpecs = {
+      _id: response.data.data._id,
+      title: specFormState.title,
+      description: specFormState.description,
+      category: specFormState.category,
+      newData: true
+    };
+    
+    addToTable(setSpecs, newSpecs)
+    specSetFormState({title: '', description: '', category: ''})
+    specSetModalOpen(false);
   };
 
-  const deleteCategory = async (categoryId) => {
-    console.log("Init Delete")
-    await axios.delete(`http://localhost:8000/api/category/${categoryId}`)
-    .then((response) => {
-      setCategories((prevCategories) => prevCategories.filter((category) => category._id !== categoryId));
-      toast.success(response.data.message, {position:"top-right"})
-    })
-    
-    .catch((error) => {
-      console.log("Error in Category Delete", error)
-    })
+  const updateCategory = async () => {
+    const response = await updateFunc('category', catEditForm._id, catEditForm)
+    const newCat = {
+        _id: response.data.data._id,
+        title: catEditForm.title,
+        description: catEditForm.description,
+        newData: true
+      };
+
+      addAndRemoveToTable(setCategories, newCat)
+      setCatEditForm({ title: '', description: '',}); 
+      catEditSetModalOpen(false);
   }
 
-  const deleteSpec = async (specId) => {
-    console.log("Init Delete")
-    await axios.delete(`http://localhost:8000/api/specialization/${specId}`)
-    .then((response) => {
-      setSpecs((prevSpecs) => prevSpecs.filter((specs) => specs._id !== specId));
-      toast.success(response.data.message, {position:"top-right"})
-    })
+  const updateSpec = async () => {
+    const response = await updateFunc('specialization', specEditForm._id, specEditForm)
+    const newSpec = {
+        _id: response.data.data._id,
+        title: specEditForm.title,
+        description: specEditForm.description,
+        category: specEditForm.category,
+        newData: true
+      };
+
+      addAndRemoveToTable(setSpecs, newSpec)
+      setSpecEditForm({ title: '', description: '', category: ''}); 
+      specEditSetModalOpen(false);
+  }
+
+  const deleteCategory = async (id) => {
+    deleteFunc('category', id, setCategories)
+  }
+
+  const deleteSpec = async (id) => {
+    deleteFunc('specialization', id, setSpecs)
+  }
+
+  const loadDataByIdCat = async (id) => {
+    const response = await fetchDataN('category', id)
+    setCatEditForm(response.data.data)
     
-    .catch((error) => {
-      console.log("Error in Specialization Delete", error)
-    })
+  }
+
+  const loadDataByIdSpec = async (id) => {
+    const response = await fetchDataN('specialization', id)
+    setSpecEditForm(response.data.data)
+    console.log(specEditForm)
   }
 
 return (
@@ -265,6 +304,11 @@ return (
         setModalOpen={catSetModalOpen}
         crudType={"category"}
         deleteHandler={deleteCategory}
+        editData={editCatData}
+        editModal={catEditModalOpen}
+        setEditModal={catEditSetModalOpen}
+        getDataFromId={loadDataByIdCat}
+        updateForm={updateCategory}
       />
 
 
@@ -277,6 +321,11 @@ return (
         setModalOpen={specSetModalOpen}
         crudType={"specialization"}
         deleteHandler={deleteSpec}
+        editData={editSpecData}
+        editModal={specEditModalOpen}
+        setEditModal={specEditSetModalOpen}
+        getDataFromId={loadDataByIdSpec}
+        updateForm={updateSpec}
       />
     </div>
 
