@@ -15,26 +15,23 @@ import { useAxiosLoader } from 'use-axios-loader'
 
 import loaderGif from '../assets/loader-main.gif';
 
-const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default content message.' },
+const Datatable = ({
         modalData,
         handleSubmit, 
         apiData,
         modalOpen, 
-        setModalOpen,
         crudType,
         deleteHandler,
-        editData,
-        editModal,
-        setEditModal,
-        resetFormState,
-        getDataFromId,
-        updateForm  }) => {
+        loadEditModal,
+        closeModals,
+        loadCreateModal
+          }) => {
+
+    console.log(apiData)
 
     const [loading] = useAxiosLoader(axiosInstance)
     const [delayedLoading, setDelayedLoading] = useState(true); 
     const delayDuration = 1000; 
-
-    const [loadedData, setLoadedData] = useState(null)
 
     useEffect(() => {
         if (!loading) {
@@ -49,29 +46,6 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
     }, [loading]);
 
     const apiList = apiData
-    console.log("modalData", modalData)
-
-    const loadModalCreate = () => {
-        console.log("passedData", modalData)
-        setLoadedData(modalData)
-        setModalOpen(true)
-    }
-
-    const loadModalEdit = () => {
-        setLoadedData(editData)
-        setEditModal(true)
-    }
-
-    const closeModals = () => {
-        setModalOpen(false)
-        setEditModal(false)
-        resetFormState()
-    }
-
-    const openEditModal = (id) => {
-        getDataFromId(id)
-        loadModalEdit()
-    }
     
     return (
         <div className="data-table">
@@ -83,7 +57,7 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                     <button
                         className='prime-button'
                         onClick={() => {
-                            loadModalCreate()
+                            loadCreateModal()
                         }}
                     >
                         <FaPlus /> &nbsp; Add New
@@ -97,18 +71,6 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                     >
                         <CreateModal modalData={modalData} closeModals={closeModals} handleSubmit={handleSubmit} />
                     </CSSTransition>
-
-                    <CSSTransition
-                        in={editModal}
-                        timeout={300}
-                        classNames="modal"
-                        unmountOnExit
-                    >
-                        <EditModal  modalData={editData} closeModals={closeModals} updateForm={updateForm}/>
-                    </CSSTransition>
-
-
-
                 </div>
             </div>
 
@@ -135,7 +97,6 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                             <th className='table-control'>Controls</th>
                             </tr>
                         </thead>
-                        
                                 <tbody>
                                     {apiList.length > 0 ? (
                                         apiList.map((data, index) => (
@@ -145,7 +106,7 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                                                         data[field.name] == null ? (
                                                             <td>No Data Assigned.</td>
                                                         ) : (
-                                                            <td>{data[field.requestFor]}</td>
+                                                            <td>{data[field.name]}</td>
                                                         )
                                                     ) : (
                                                         <td>{data[field.name]}</td>
@@ -153,7 +114,7 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                                                     
                                                 ))}
                                                 <td className='table-control'>
-                                                    <span className='table-icon prime-icon' onClick={() => openEditModal(data._id)}><MdModeEdit /></span>
+                                                    <span className='table-icon prime-icon' onClick={() => loadEditModal(data._id)}><MdModeEdit /></span>
                                                     <span className='table-icon neutral-icon'><IoMdEye /></span>
                                                     <span className='table-icon warning-icon'><IoMdAlert /></span>
                                                     <span className='table-icon danger-icon' onClick={() => deleteHandler(data._id)}><IoMdTrash /></span>
@@ -164,7 +125,6 @@ const Datatable = ({ crudData = { crudTitle: 'Default Title', content: 'Default 
                                         <tr>No Data Available.</tr>
                                     )}
                                 </tbody>
-                        
                     </table>
             }
             </div>

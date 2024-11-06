@@ -35,6 +35,13 @@ const instructorSchema = mongoose.Schema({
         required: false
         }
     ],    
+    expertise: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Specialization',
+            required: false,
+        }
+    ]
     },
 
     {
