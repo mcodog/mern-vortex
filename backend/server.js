@@ -9,14 +9,23 @@ import UserRoute from './routes/user.route.js'
 import instructorRoute from './routes/instructor.route.js'
 import courseRoute from './routes/course.route.js'
 import expertiseRoute from './routes/expertise.route.js'
+import loginRoute from './routes/Auth/login.route.js'
 
 import cloudinary from 'cloudinary'
 import Multer from 'multer'
 
+import cookieParser from 'cookie-parser'
+import bodyParser from 'body-parser'
+import session from 'express-session'
+import { corsOptions } from './config/corsOptions.js'
+
 const app = express();
 app.use(express.json({limit:'50mb'}));
-app.use(cors());
-dotenv.config();
+app.use(cors(corsOptions))
+app.use(cookieParser())
+app.use(bodyParser.urlencoded({ extended: true }))
+
+dotenv.config()
 
 app.use('/api/category', categoryRoute);
 app.use('/api/specialization', specRoute);
@@ -25,12 +34,13 @@ app.use('/api/instructor', instructorRoute);
 app.use('/api/course', courseRoute);
 app.use('/api/expertise', expertiseRoute);
 
+app.use('/auth', loginRoute)
+
 app.listen(process.env.PORT, () => {
     console.log(`Server is running. Connected to port: ${process.env.PORT}`);
     console.log(`Attempting to connect to database: ${process.env.MONGODB_URI}`)
     connectDB(process.env.MONGODB_URI);
 })
-
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,

@@ -388,11 +388,11 @@ const CourseCrud = () => {
                   <TableRow>
                     <TableCell />
                     <TableCell align="center">
-                      <Checkbox
+                      {/* <Checkbox
                         checked={checked[0] && checked[1]}
                         indeterminate={checked[0] !== checked[1]}
                         onChange={handleChange1}
-                      />
+                      /> */}
                     </TableCell>
 
                     <TableCell>ID</TableCell>

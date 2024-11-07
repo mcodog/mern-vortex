@@ -18,7 +18,7 @@ const Header = () => {
         </div>
         <div className="nav-col nav-right">
             <Link href="">Contact Sales</Link>
-            <button className="signin" onclick="window.location.href='/signin';">Sign In</button>
+            <Link className="signin" to="/login">Sign In</Link>
         </div>
     </nav>
   )

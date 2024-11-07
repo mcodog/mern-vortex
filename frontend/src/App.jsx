@@ -12,9 +12,12 @@ import CourseCrud from './pages/admin/CourseCrud'
 import CategoryCrud from './pages/admin/CategoryCrud'
 import UsersCrud from './pages/admin/UsersCrud'
 import InstructorCrud from './pages/admin/InstructorCrud'
+import Login from './pages/Login'
+
+import axios from 'axios'
 
 function App() {
-
+  axios.defaults.withCredentials = true;
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
@@ -22,6 +25,8 @@ function App() {
         <Route path="/courses" element={<Course />} />
         <Route path="/course" element={<CourseItem />} />
       </Route>
+
+      <Route path="/login" element={<Login />} />
 
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />

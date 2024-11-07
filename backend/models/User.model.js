@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken'
 
 const userSchema = mongoose.Schema({
     email: {
@@ -11,16 +12,24 @@ const userSchema = mongoose.Schema({
         },
     role: {
         type: String,
-        required: true,
+        required: false,
+        default: 'Learner'
         },
     status: {
         type: String,
-        required: true,
+        required: false,
+        default: 'Active'
         },
     },
     {
         timestamps: true,
     });
+
+    userSchema.methods.getJwtToken = function () {
+        return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRES_TIME
+        });
+    }
 
     const User = mongoose.model('User', userSchema);
     export default User;

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import './styles/Gradient.css'
 
 const Gradient = () => {
@@ -535,4 +535,4 @@ gradient.initGradient('#gradient-canvas');
   );
 }
 
-export default Gradient;
+export default React.memo(Gradient);
