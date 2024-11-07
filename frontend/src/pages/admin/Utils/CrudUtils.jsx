@@ -32,6 +32,16 @@ export const createFunc = async (object, formState) => {
       }
 }
 
+export const createFuncNoToast = async (object, formState) => {
+    try {
+        const response = await axios.post(`http://localhost:8000/api/${object}`, formState);
+        return response
+  
+      } catch (error) {
+        console.log("Error creating User:", error);
+      }
+}
+
 export const addToTable = async (setForm, newEntry) => {
     setForm((prevData) => [newEntry, ...prevData]);
 

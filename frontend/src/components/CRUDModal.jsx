@@ -89,6 +89,20 @@ const CRUDModal = ({ setOpenModal, modalData: { title, content, fields }, handle
                   }
                 </select>
               </div>
+            ) : field.type == 'file' ? (
+              <div key={field.name} className="input-group">
+              <label>{field.label}</label>
+              <input 
+                type={field.type} 
+                name={field.name} 
+                placeholder={field.placeholder} 
+                value={field.value} 
+                onChange={field.onChange} 
+                required={field.required}
+                className={field.className}
+                multiple
+              />
+            </div>
             ) : (
               <div></div>
             )

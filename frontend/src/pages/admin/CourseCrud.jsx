@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Datatable from '../../components/Datatable'
 import axios from "axios"
 import toast from 'react-hot-toast'
-import { fetchData, createFunc, addToTable, deleteFunc, fetchDataN, updateFunc, addAndRemoveToTable } from './Utils/CrudUtils'
+import { fetchData, createFunc, addToTable, deleteFunc, fetchDataN, updateFunc, addAndRemoveToTable, createFuncNoToast } from './Utils/CrudUtils'
 
 const CourseCrud = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -13,6 +13,7 @@ const CourseCrud = () => {
   const [mode, setMode] = useState()
   const [desc, setDesc]= useState()
   const [crudMode, setCrudMode] = useState('read')
+  const [imagesPreview, setImagesPreview] = useState()
 
   const deleteCourse = async (id) => {
     deleteFunc('course', id, setCourses)
@@ -54,23 +55,50 @@ const CourseCrud = () => {
   }
 
   const handleCreate = async () => {
-    try {
-      const res = await createFunc('course', formState)
-      // console.log(res.data.data)
-      const newData = {
-        _id: res.data.data._id,
-        title: res.data.data.title,
-        description: res.data.data.description,
-        price: res.data.data.price,
-        specialization: res.data.data.specialization[0].title,
-        instructor: res.data.data.instructor[0].last_name,
-        newData: true
+    if (formState.images !== '') {
+      const uploadPromise = createFuncNoToast('course', formState)
+      
+      toast.promise(uploadPromise, {
+        loading: 'Attempting to upload images...',
+        success: 'Course created successfully!',
+        error: 'Unsuccessful: Course Not Created.'
+      });
+    
+      try {
+        const res = await uploadPromise;
+        const newData = {
+          _id: res.data.data._id,
+          title: res.data.data.title,
+          description: res.data.data.description,
+          price: res.data.data.price,
+          specialization: res.data.data.specialization[0].title,
+          instructor: res.data.data.instructor[0].last_name,
+          newData: true
+        };
+        addToTable(setFlattenedData, newData);
+        setModalOpen(false);
+      } catch (e) {
+        console.error("Error creating course:", e);
       }
-      addToTable(setFlattenedData, newData)
-      setModalOpen(false)
-    } catch (e) {
-      toast.error("Unsuccessful: Course Not Created.")
-    }
+    } else {
+      try {
+        const res = await createFunc('course', formState);
+        const newData = {
+          _id: res.data.data._id,
+          title: res.data.data.title,
+          description: res.data.data.description,
+          price: res.data.data.price,
+          specialization: res.data.data.specialization[0].title,
+          instructor: res.data.data.instructor[0].last_name,
+          newData: true
+        };
+        addToTable(setFlattenedData, newData);
+        setModalOpen(false);
+      } catch (e) {
+        toast.error("Unsuccessful: Course Not Created.");
+        console.error("Error creating course:", e);
+      }
+    }    
   };
 
   const handleUpdate = async () => {
@@ -110,6 +138,26 @@ const CourseCrud = () => {
 
   const closeModals = () => {
     setModalOpen(false)
+  }
+
+  const onChange = e => {
+    const files = Array.from(e.target.files)
+    const newImages = [];
+    setImagesPreview([]);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.readyState === 2) {
+          setImagesPreview(oldArray => [...oldArray, reader.result])
+          newImages.push(reader.result);
+        }
+      }
+      reader.readAsDataURL(file)
+    })
+    setFormState((prevState) => ({
+      ...prevState,
+      images: newImages,
+    }));
   }
 
   const modalData = {
@@ -168,6 +216,14 @@ const CourseCrud = () => {
         requestFor: 'last_name',
         withForeign: true,
         flattened: true
+      },
+      {
+        label: 'Images',
+        type: 'file',
+        name: 'images',
+        id: 'custom_file',
+        onChange: (e) => onChange(e),
+        required: false,
       },
     ]
   };

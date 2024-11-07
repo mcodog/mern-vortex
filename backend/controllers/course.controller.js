@@ -1,5 +1,6 @@
 import Course from "../models/Course.model.js"
 import mongoose from 'mongoose'
+import cloudinary from 'cloudinary'
 
 export const getCourse = async (request, response) => {
     try {
@@ -21,12 +22,42 @@ export const getOneCourse = async (request, response) => {
         response.status(200).json({ success: true, message: "Course Retrieved.", data: course });
     } catch (error) {
         console.log("Error in fetching Course: ", error.message);
-        response.status(500).json({ success: false, message: "Server Error."});
+        response.status(500).json({ success: false, message: "Server Error." });
     }
 };
 
 export const createCourse = async (request, response) => {
     const course = request.body;
+
+    let images = []
+    if (typeof request.body.images === 'string') {
+        images.push(request.body.images)
+    } else {
+        images = request.body.images
+    }
+
+    let imagesLinks = [];
+    for (let i = 0; i < images.length; i++) {
+        try {
+            const result = await cloudinary.v2.uploader.upload(images[i], {
+                folder: 'courses',
+                width: 500,
+                height: 500,
+                crop: "scale",
+            });
+
+            imagesLinks.push({
+                public_id: result.public_id,
+                url: result.secure_url
+            })
+
+        } catch (error) {
+            console.log("Cant Upload", error)
+        }
+
+    }
+
+    request.body.images = imagesLinks
 
     if (!course.title || !course.description || !course.price || !course.specialization || !course.instructor) {
         return response.status(400).json({ success: false, message: "Please provide all fields." });
@@ -47,6 +78,40 @@ export const createCourse = async (request, response) => {
 export const updateCourse = async (request, response) => {
     const { id } = request.params;
 
+    
+
+    let images = []
+    if (Array.isArray(request.body.images)) {
+        if (typeof request.body.images[0] === 'string') {
+            images = request.body.images;
+            let imagesLinks = [];
+            for (let i = 0; i < images.length; i++) {
+                try {
+                    const result = await cloudinary.v2.uploader.upload(images[i], {
+                        folder: 'courses',
+                        width: 500,
+                        height: 500,
+                        crop: "scale",
+                    });
+
+                    imagesLinks.push({
+                        public_id: result.public_id,
+                        url: result.secure_url
+                    })
+
+                } catch (error) {
+                    console.log("Cant Upload", error)
+                }
+
+            }
+            request.body.images = imagesLinks
+        } else if (typeof request.body.images[0] === 'object') {
+            
+        }
+    } else if (typeof request.body.images === 'string') {
+        images.push(request.body.images);
+    }
+
     const course = request.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -56,7 +121,7 @@ export const updateCourse = async (request, response) => {
     try {
         const updatedCourse = await Course.findByIdAndUpdate(id, course, { new: true });
         await updatedCourse.populate(['specialization', 'instructor']);
-        response.status(200).json({ success: true, data: updatedCourse, message:"Successful: Course Successfully Updated" });
+        response.status(200).json({ success: true, data: updatedCourse, message: "Successful: Course Successfully Updated" });
     } catch (error) {
         response.status(500).json({ success: false, message: "Server Error: Error in Updating Course." })
     }

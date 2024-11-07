@@ -27,13 +27,18 @@ const courseSchema = mongoose.Schema({
         required: true
         }
     ],    
-    image: [
+    images: [
         {
-        type: Schema.Types.ObjectId,
-        ref: 'courseImage',
-        required: false
+            public_id: {
+                type: String,
+                required: true
+            },
+            url: {
+                type: String,
+                required: true
+            }
         }
-    ],    
+    ],   
     },
 
     {
