@@ -79,7 +79,7 @@ const Datatable = ({
                     <img className='loader-img' src={loaderGif} alt="Loading..." />
                 </div>
                 : 
-                    <table>
+                    <table className='def-table'>
                         <thead>
                             <tr>
                                 {!(crudType == undefined) ? (

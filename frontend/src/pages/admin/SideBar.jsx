@@ -8,6 +8,9 @@ import { SiBookstack } from "react-icons/si";
 
 import { Link, useLocation } from 'react-router-dom'
 
+import Divider from '@mui/material/Divider';
+
+
 const SideBar = () => {
   const [currentPage, setCurrentPage] = useState('');
   const location = useLocation();
@@ -41,14 +44,16 @@ const SideBar = () => {
       <Link to="/admin" className={`nav-slot ${currentPage === "Dashboard" ? 'active' : ""}`}>
         <MdDashboard /> &nbsp; Dashboard
       </Link>
+      <Link to="/admin/courses" className={`nav-slot ${currentPage === "Courses" ? 'active' : ""}`}>
+        <GiWhiteBook /> &nbsp; Courses
+      </Link>
+      <Divider />
+      <h5 className='padding-left light-pale'>Common CRUD</h5>
       <Link to="/admin/users" className={`nav-slot ${currentPage === "Users" ? 'active' : ""}`}>
         <FaUsers /> &nbsp; Users
       </Link>
       <Link to="/admin/instructors" className={`nav-slot ${currentPage === "Instructors" ? 'active' : ""}`}>
         <FaChalkboardTeacher /> &nbsp; Instructors
-      </Link>
-      <Link to="/admin/courses" className={`nav-slot ${currentPage === "Courses" ? 'active' : ""}`}>
-        <GiWhiteBook /> &nbsp; Courses
       </Link>
       <Link to="/admin/categories" className={`nav-slot ${currentPage === "Categories" ? 'active' : ""}`}>
         <SiBookstack /> &nbsp; Course Categories
