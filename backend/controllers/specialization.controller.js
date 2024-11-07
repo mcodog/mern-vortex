@@ -67,7 +67,7 @@ export const updateSpec = async (request, response) => {
 
     try {
         const updatedSpec = await Spec.findByIdAndUpdate(id, spec, {new:true});
-        response.status(200).json({ success:true, data:updatedSpec });
+        response.status(200).json({ success:true, data:updatedSpec, message:"Successful: Specialization Successfully Updated" });
     } catch (error) {
         response.status(500).json({ success: false, message: "Server Error: Error in Updating Specialization."})
     }

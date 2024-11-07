@@ -2,7 +2,7 @@ import React from 'react'
 import './styles/Modal.css'
 import './styles/ModalAnims.css'
 
-const CreateModal = ({ setOpenModal, modalData: { title, content, fields }, handleSubmit, closeModals  }) => {
+const CRUDModal = ({ setOpenModal, modalData: { title, content, fields }, handleSubmit, closeModals  }) => {
   console.log(fields)
   return (
     <div 
@@ -105,4 +105,4 @@ const CreateModal = ({ setOpenModal, modalData: { title, content, fields }, hand
   )
 }
 
-export default CreateModal
+export default CRUDModal

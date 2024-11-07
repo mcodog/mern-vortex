@@ -1,5 +1,4 @@
-import CreateModal from './CreateModal';
-import EditModal from './EditModal';
+import CRUDModal from './CRUDModal';
 import React, { useState, useEffect } from 'react';
 import { FaPlus } from "react-icons/fa";
 import { BiSolidTrashAlt, BiSolidMessageSquareEdit } from "react-icons/bi";
@@ -69,7 +68,7 @@ const Datatable = ({
                         classNames="modal"
                         unmountOnExit
                     >
-                        <CreateModal modalData={modalData} closeModals={closeModals} handleSubmit={handleSubmit} />
+                        <CRUDModal modalData={modalData} closeModals={closeModals} handleSubmit={handleSubmit} />
                     </CSSTransition>
                 </div>
             </div>

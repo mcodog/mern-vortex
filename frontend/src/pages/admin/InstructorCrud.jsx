@@ -15,6 +15,7 @@ const InstructorCrud = () => {
   const [mode, setMode] = useState()
   const [desc, setDesc]= useState()
   const [crudMode, setCrudMode] = useState('read')
+  const [flattenedData, setFlattenedData] = useState([])
 
   const resetForm = () => {
     setFormState({ first_name: '', last_name: '', age: '', gender: '', address: '', user: '', })
@@ -170,6 +171,27 @@ const InstructorCrud = () => {
     ]
   };
 
+  useEffect(() => {
+    if (instructor.length > 0) {
+      const flattened = instructor.map(item => ({
+        _id: item._id,
+        first_name: item.first_name,
+        last_name: item.last_name,
+        age: item.age,
+        gender: item.gender,
+        address: item.address,
+        user: (typeof item.user === 'string')
+          ? item.user
+          : (Array.isArray(item.user) && item.user.length > 0)
+            ? item.user[0].email
+            : 'N/A',
+        createdAt: new Date(item.createdAt).toLocaleString(),
+        updatedAt: new Date(item.updatedAt).toLocaleString(),
+      }));
+      setFlattenedData(flattened);
+    }
+  }, [instructor]);
+
   return (
     <div className="main-panel__column">
       <div className="md-thumbs">
@@ -189,7 +211,7 @@ const InstructorCrud = () => {
       <Datatable
         modalData={modalData}
         handleSubmit={handleSubmit}
-        apiData={instructor}
+        apiData={flattenedData}
         modalOpen={modalOpen}
         setModalOpen={setModalOpen}
         crudType={"instructor"}

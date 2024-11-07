@@ -2,55 +2,107 @@ import React, { useEffect, useState } from 'react'
 import Datatable from '../../components/Datatable'
 import axios from "axios"
 import toast from 'react-hot-toast'
-import { FaArrowTrendUp, FaArrowTrendDown  } from "react-icons/fa6";
+import { FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 import { fetchData, fetchDataN, createFunc, addToTable, updateFunc, addAndRemoveToTable, deleteFunc } from './Utils/CrudUtils'
 
 const CategoryCrud = () => {
-  const [categoryOptions, setCategoryOptions] = useState({})
-  const [categories, setCategories] = useState([]);
-  const [specs, setSpecs] = useState([]);
-  const [catModalOpen, catSetModalOpen] = useState(false);
-  const [specModalOpen, specSetModalOpen] = useState(false);
-  const [catEditModalOpen, catEditSetModalOpen] = useState(false);
-  const [specEditModalOpen, specEditSetModalOpen] = useState(false);
 
+  // Category
+
+  const [modalOpenCat, setModalOpenCat] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [mode, setMode] = useState()
+  const [desc, setDesc] = useState()
+  const [crudMode, setCrudMode] = useState('read')
   const [catFormState, catSetFormState] = useState({
     title: '',
     description: '',
   });
 
-  const [catEditForm, setCatEditForm] = useState({
-    title: '',
-    description: '',
-  });
+  const resetFormCat = () => {
+    catSetFormState({
+      title: '',
+      description: '',
+    })
+  }
 
-const [specFormState, specSetFormState] = useState({
-    title: '',
-    description: '',
-    category: ''
-  });
+  const handleSubmitCat = (event) => {
+    event.preventDefault()
+    if (crudMode == 'create') {
+      handleCreateCat()
+    } else if (crudMode == "update") {
+      handleUpdateCat()
+    }
+  }
 
-const [specEditForm, setSpecEditForm] = useState({
-    title: '',
-    description: '',
-    category: ''
-  });
+  const handleCreateCat = async () => {
+    const response = await createFunc('category', catFormState);
 
-const crudData = {
-    crudTitle: "User",
-    content: "Fill in the details for the new item you want to add."
-};
+    const newCategory = {
+      _id: response.data.data._id,
+      title: catFormState.title,
+      description: catFormState.description,
+      newData: true
+    };
 
-const categoryData = {
-    title: 'Create Category',
-    content: 'Fill out the form below to create a new user.',
+    addToTable(setCategories, newCategory)
+    resetFormCat()
+    setModalOpenCat(false);
+    fetchData('category', setCatOps)
+  };
+
+  const handleUpdateCat = async () => {
+    const response = await updateFunc('category', catFormState._id, catFormState)
+    const newCat = {
+      _id: response.data.data._id,
+      title: catFormState.title,
+      description: catFormState.description,
+      newData: true
+    };
+
+    addAndRemoveToTable(setCategories, newCat)
+    resetFormCat()
+    setModalOpenCat(false);
+    fetchData('category', setCatOps)
+  }
+
+  const deleteCategory = async (id) => {
+    deleteFunc('category', id, setCategories)
+    fetchData('category', setCatOps)
+  }
+
+  const loadCreateModalCat = () => {
+    resetFormCat()
+    setCrudMode('create')
+    setMode("Create Category")
+    setDesc("Placeholder")
+    setModalOpenCat(true)
+  }
+
+  const loadEditModalCat = async (id) => {
+    resetFormCat()
+    setCrudMode('update')
+    const response = await fetchDataN('category', id)
+    catSetFormState(response.data.data)
+    setMode("Edit Cateogory")
+    setDesc("Placeholder")
+    setModalOpenCat(true)
+  }
+
+  const closeModalsCat = () => {
+    setModalOpenCat(false)
+  }
+
+  const categoryData = {
+    title: mode,
+    content: desc,
     fields: [
       {
         label: 'Title',
         type: 'text',
         name: 'title',
         placeholder: 'Enter Title',
-        value: catFormState.title, 
+        value: catFormState.title,
         onChange: (e) => catSetFormState({ ...catFormState, title: e.target.value }),
         required: true,
       },
@@ -59,41 +111,48 @@ const categoryData = {
         type: 'textarea',
         name: 'description',
         placeholder: 'Enter Description',
-        value: catFormState.description, 
+        value: catFormState.description,
         onChange: (e) => catSetFormState({ ...catFormState, description: e.target.value }),
         required: true,
       },
     ]
   };
 
-const editCatData = {
-    title: 'Edit Category',
-    content: 'Fill out the form below to create a new user.',
-    fields: [
-      {
-        label: 'Title',
-        type: 'text',
-        name: 'title',
-        placeholder: 'Enter Title',
-        value: catEditForm.title, 
-        onChange: (e) => setCatEditForm({ ...catEditForm, title: e.target.value }),
-        required: true,
-      },
-      {
-        label: 'Description',
-        type: 'textarea',
-        name: 'description',
-        placeholder: 'Enter Description',
-        value: catEditForm.description, 
-        onChange: (e) => setCatEditForm({ ...catEditForm, description: e.target.value }),
-        required: true,
-      },
-    ]
-  };
+  // Specialization
 
-const specsData = {
-    title: 'Create New Specialization',
-    content: 'Fill out the form below to create a new specialization.',
+  const [specs, setSpecs] = useState([]);
+  const [specModalOpen, specSetModalOpen] = useState(false);
+  const [catOps, setCatOps] = useState(null);
+  const [flattenedData, setFlattenedData] = useState()
+  const [foreignHold, setForeignHold] = useState()
+
+  useEffect(() => {
+    fetchData('category', setCategories)
+    fetchData('specialization', setSpecs)
+    fetchData('category', setCatOps)
+  }, [])
+
+  const [specFormState, specSetFormState] = useState({
+    title: '',
+    description: '',
+    category: ''
+  });
+
+  const resetFormSpec = () => {
+    specSetFormState({
+      title: '',
+      description: '',
+      category: ''
+    })
+  }
+
+  useEffect(() => {
+    console.log(catOps)
+  }, [catOps])
+
+  const specsData = {
+    title: mode,
+    content: desc,
     fields: [
       {
         label: 'Title',
@@ -110,7 +169,7 @@ const specsData = {
         type: 'textarea',
         name: 'description',
         placeholder: 'Enter Description',
-        value: specFormState.description, 
+        value: specFormState.description,
         onChange: (e) => specSetFormState({ ...specFormState, description: e.target.value }),
         required: true,
         withForeign: false,
@@ -120,49 +179,12 @@ const specsData = {
         type: 'select',
         name: 'category',
         placeholder: 'Enter Category',
-        value: specFormState.category, 
-        onChange: (e) => specSetFormState({ ...specFormState, category: e.target.value }),
+        value: specFormState.category,
+        onChange: (e) => 
+          {specSetFormState({ ...specFormState, category: e.target.value })
+          setForeignHold(e.target.selectedOptions[0].text)},
         required: true,
-        options: categoryOptions,
-        requestFor: 'title',
-        withForeign: true,
-      },
-    ]
-  };
-
-const editSpecData = {
-    title: 'Edit Specialization',
-    content: 'Fill out the form below to create a new specialization.',
-    fields: [
-      {
-        label: 'Title',
-        type: 'text',
-        name: 'title',
-        placeholder: 'Enter Title',
-        value: specEditForm.title,
-        onChange: (e) => setSpecEditForm({ ...specEditForm, title: e.target.value }),
-        required: true,
-        withForeign: false,
-      },
-      {
-        label: 'Description',
-        type: 'textarea',
-        name: 'description',
-        placeholder: 'Enter Description',
-        value: specEditForm.description, 
-        onChange: (e) => setSpecEditForm({ ...specEditForm, description: e.target.value }),
-        required: true,
-        withForeign: false,
-      },
-      {
-        label: 'Category',
-        type: 'select',
-        name: 'category',
-        placeholder: 'Enter Category',
-        value: specEditForm.category, 
-        onChange: (e) => setSpecEditForm({ ...specEditForm, category: e.target.value }),
-        required: true,
-        options: categoryOptions,
+        options: catOps,
         requestFor: 'title',
         withForeign: true,
       },
@@ -170,166 +192,158 @@ const editSpecData = {
   };
 
   useEffect(() => {
-    fetchData('category', setCategories)
-    fetchData('specialization', setSpecs)
-    fetchData('category', setCategoryOptions)
-  }, [])
+    console.log(specs)
+    if (specs.length > 0) {
+      const flattened = specs.map(item => ({
+        _id: item._id,
+        title: item.title,
+        description: item.description,
+        category: (typeof item.category === 'string')
+          ? item.category
+          : (item.category && typeof item.category === 'object' && item.category.title)
+            ? item.category.title
+            : 'N/A',
 
-  const catHandleSubmit = async (event) => {
-    event.preventDefault();
-    const response = await createFunc('category', catFormState);
+        createdAt: new Date(item.createdAt).toLocaleString(),
+        updatedAt: new Date(item.updatedAt).toLocaleString(),
+      }));
+      setFlattenedData(flattened);
+    }
+  }, [specs]);
 
-    const newCategory = {
-      _id: response.data.data._id,
-      title: catFormState.title,
-      description: catFormState.description,
-      newData: true
-    };
-    
-    addToTable(setCategories, newCategory)
-    catSetFormState({title: '', description: '',})
-    catSetModalOpen(false);
-  };
 
-  const specHandleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmitSpec = (event) => {
+    event.preventDefault()
+    if (crudMode == 'create') {
+      specHandleSubmit()
+    } else if (crudMode == "update") {
+      updateSpec()
+    }
+  }
+
+  const specHandleSubmit = async () => {
     const response = await createFunc('specialization', specFormState);
 
     const newSpecs = {
       _id: response.data.data._id,
       title: specFormState.title,
       description: specFormState.description,
-      category: specFormState.category,
+      category: foreignHold,
       newData: true
     };
-    
+
     addToTable(setSpecs, newSpecs)
-    specSetFormState({title: '', description: '', category: ''})
+    resetFormSpec()
     specSetModalOpen(false);
   };
 
-  const updateCategory = async () => {
-    const response = await updateFunc('category', catEditForm._id, catEditForm)
-    const newCat = {
-        _id: response.data.data._id,
-        title: catEditForm.title,
-        description: catEditForm.description,
-        newData: true
-      };
-
-      addAndRemoveToTable(setCategories, newCat)
-      setCatEditForm({ title: '', description: '',}); 
-      catEditSetModalOpen(false);
-  }
-
   const updateSpec = async () => {
-    const response = await updateFunc('specialization', specEditForm._id, specEditForm)
+    const response = await updateFunc('specialization', specFormState._id, specFormState)
     const newSpec = {
-        _id: response.data.data._id,
-        title: specEditForm.title,
-        description: specEditForm.description,
-        category: specEditForm.category,
-        newData: true
-      };
+      _id: response.data.data._id,
+      title: specFormState.title,
+      description: specFormState.description,
+      category: foreignHold,
+      newData: true
+    };
 
-      addAndRemoveToTable(setSpecs, newSpec)
-      setSpecEditForm({ title: '', description: '', category: ''}); 
-      specEditSetModalOpen(false);
-  }
-
-  const deleteCategory = async (id) => {
-    deleteFunc('category', id, setCategories)
+    addAndRemoveToTable(setSpecs, newSpec)
+    resetFormSpec()
+    specSetModalOpen(false);
   }
 
   const deleteSpec = async (id) => {
     deleteFunc('specialization', id, setSpecs)
   }
 
-  const loadDataByIdCat = async (id) => {
-    const response = await fetchDataN('category', id)
-    setCatEditForm(response.data.data)
-    
+  const loadCreateModalSpec = () => {
+    resetFormSpec()
+    setCrudMode('create')
+    setMode("Create Specialization")
+    setDesc("Placeholder")
+    specSetModalOpen(true)
   }
 
-  const loadDataByIdSpec = async (id) => {
+  const loadEditModalSpec = async (id) => {
+    resetFormSpec()
+    setCrudMode('update')
     const response = await fetchDataN('specialization', id)
-    setSpecEditForm(response.data.data)
-    console.log(specEditForm)
+    specSetFormState(response.data.data)
+    setMode("Edit Specialization")
+    setDesc("Placeholder")
+    specSetModalOpen(true)
   }
 
-return (
-<div className="main-panel__column">
-    <div className="md-thumbs">
-      <div className="thumb">
+  const closeModalsSpec = () => {
+    specSetModalOpen(false)
+  }
+
+  return (
+    <div className="main-panel__column">
+      <div className="md-thumbs">
+        <div className="thumb">
           <div className="thumb-title">Total Category</div>
           <div className="display-data">124</div>
           <div className="th-footer">
             <div>Last Added: <span className='warning'>09/10/2024</span></div>
             <div className='center-align success expand'><FaArrowTrendUp /> &nbsp; +25</div>
           </div>
-      </div>
-      <div className="thumb">
+        </div>
+        <div className="thumb">
           <div className="thumb-title">Most Popular Category</div>
           <div className="display-data">Development</div>
           <div className="th-footer">
             <div>Students: <span className='warning'>1244</span></div>
             <div className='center-align success expand'><FaArrowTrendUp /> &nbsp; +25</div>
           </div>
-      </div>
-      <div className="thumb">
-      <div className="thumb-title">Total Specialization</div>
+        </div>
+        <div className="thumb">
+          <div className="thumb-title">Total Specialization</div>
           <div className="display-data">124</div>
           <div className="th-footer">
             <div>Last Added: <span className='warning'>09/10/2024</span></div>
             <div className='center-align danger expand'><FaArrowTrendDown /> &nbsp; -2</div>
           </div>
-      </div>
-      <div className="thumb">
+        </div>
+        <div className="thumb">
           <div className="thumb-title">Most Popular Specialization</div>
           <div className="display-data">Web Development</div>
           <div className="th-footer">
             <div>Students: <span className='warning'>1024</span></div>
             <div className='center-align success expand'><FaArrowTrendUp /> &nbsp; +25</div>
           </div>
+        </div>
       </div>
+      <div className="dual-rows">
+
+        <Datatable
+          modalData={categoryData}
+          handleSubmit={handleSubmitCat}
+          apiData={categories}
+          modalOpen={modalOpenCat}
+          setModalOpen={setModalOpenCat}
+          crudType={"category"}
+          deleteHandler={deleteCategory}
+          loadEditModal={loadEditModalCat}
+          closeModals={closeModalsCat}
+          loadCreateModal={loadCreateModalCat}
+        />
+
+        <Datatable
+          modalData={specsData}
+          handleSubmit={handleSubmitSpec}
+          apiData={flattenedData}
+          modalOpen={specModalOpen}
+          setModalOpen={specSetModalOpen}
+          crudType={"specialization"}
+          deleteHandler={deleteSpec}
+          loadEditModal={loadEditModalSpec}
+          closeModals={closeModalsSpec}
+          loadCreateModal={loadCreateModalSpec}
+        />
+      </div>
+
     </div>
-    <div className="dual-rows">
-     
-      <Datatable 
-        crudData={crudData}
-        modalData={categoryData}
-        handleSubmit={catHandleSubmit}
-        apiData={categories} 
-        modalOpen={catModalOpen} 
-        setModalOpen={catSetModalOpen}
-        crudType={"category"}
-        deleteHandler={deleteCategory}
-        editData={editCatData}
-        editModal={catEditModalOpen}
-        setEditModal={catEditSetModalOpen}
-        getDataFromId={loadDataByIdCat}
-        updateForm={updateCategory}
-      />
-
-
-      <Datatable 
-        crudData={crudData}
-        modalData={specsData}
-        handleSubmit={specHandleSubmit}
-        apiData={specs} 
-        modalOpen={specModalOpen} 
-        setModalOpen={specSetModalOpen}
-        crudType={"specialization"}
-        deleteHandler={deleteSpec}
-        editData={editSpecData}
-        editModal={specEditModalOpen}
-        setEditModal={specEditSetModalOpen}
-        getDataFromId={loadDataByIdSpec}
-        updateForm={updateSpec}
-      />
-    </div>
-
-</div>
   )
 }
 

@@ -51,7 +51,7 @@ export const updateCategory = async (request, response) => {
 
     try {
         const updatedCategory = await Category.findByIdAndUpdate(id, category, {new:true});
-        response.status(200).json({ success:true, data:updatedCategory });
+        response.status(200).json({ success:true, data:updatedCategory, message:"Successful: Category Successfully Updated" });
     } catch (error) {
         response.status(500).json({ success: false, message: "Server Error: Error in Updating Category."})
     }

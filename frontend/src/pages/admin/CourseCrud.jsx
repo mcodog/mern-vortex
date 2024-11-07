@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Datatable from '../../components/Datatable'
 import axios from "axios"
 import toast from 'react-hot-toast'
-import { fetchData, createFunc, addToTable, deleteFunc, fetchDataN } from './Utils/CrudUtils'
+import { fetchData, createFunc, addToTable, deleteFunc, fetchDataN, updateFunc, addAndRemoveToTable } from './Utils/CrudUtils'
 
 const CourseCrud = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -10,19 +10,11 @@ const CourseCrud = () => {
   const [specOps, setSpecOps] = useState(null);
   const [courses, setCourses] = useState([])
   const [flattenedData, setFlattenedData] = useState([])
-  const [editModal, setEditModal] = useState(false);
-  const [editForm, setEditForm] = useState({
-    _id: '',
-    title: '',
-    description: '',
-    price: '',
-    specialization: '',
-    author: '',
-    images: '',
-  })
+  const [mode, setMode] = useState()
+  const [desc, setDesc]= useState()
+  const [crudMode, setCrudMode] = useState('read')
 
   const deleteCourse = async (id) => {
-    // alert(id)
     deleteFunc('course', id, setCourses)
   }
 
@@ -52,8 +44,16 @@ const CourseCrud = () => {
     })
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    if(crudMode == 'create') {
+      handleCreate()
+    } else if(crudMode == "update") {
+      handleUpdate()
+    }
+  }
+
+  const handleCreate = async () => {
     try {
       const res = await createFunc('course', formState)
       // console.log(res.data.data)
@@ -73,26 +73,48 @@ const CourseCrud = () => {
     }
   };
 
-  const loadDataById = async (id) => {
-    const res = await fetchDataN('course', id)
-    // setFormState({
-    //   _id: res.data.data._id,
-    //   title: res.data.data.title,
-    //   description: res.data.data.description,
-    //   price: res.data.data.price,
-    //   specialization: res.data.data.specialization[0]._id,
-    //   instructor: res.data.data.instructor[0]._id,
-    // })
+  const handleUpdate = async () => {
+    const res = await updateFunc('course', formState._id, formState)
+    const newCourse = {
+      _id: res.data.data._id,
+      title: res.data.data.title,
+      description: res.data.data.description,
+      price: res.data.data.price,
+      specialization: res.data.data.specialization[0].title,
+      instructor: res.data.data.instructor[0].last_name,
+      newData: true
+    };
+
+    addAndRemoveToTable(setFlattenedData, newCourse)
+    resetForm()
+    setModalOpen(false);
   }
 
-  const crudData = {
-    crudTitle: "Course",
-    content: "Fill in the details for the new item you want to add."
-  };
+  const loadCreateModal = () => {
+    resetForm()
+    setCrudMode('create')
+    setMode("Create Course")
+    setDesc("Placeholder")
+    setModalOpen(true)
+  }
+
+  const loadEditModal = async (id) => {
+    resetForm()
+    setCrudMode('update')
+    const response = await fetchDataN('course', id)
+    setFormState(response.data.data)
+    setMode("Edit Course")
+    setDesc("Placeholder")
+    setModalOpen(true)
+  }
+
+  const closeModals = () => {
+    setModalOpen(false)
+  }
 
   const modalData = {
-    title: 'Create New Course',
-    content: 'Fill out the form below to create a new course.',
+    title: mode,
+    content: desc,
     fields: [
       {
         label: 'Title',
@@ -132,6 +154,7 @@ const CourseCrud = () => {
         options: specOps,
         requestFor: 'title',
         withForeign: true,
+        flattened: true
       },
       {
         label: 'Instructor',
@@ -144,6 +167,7 @@ const CourseCrud = () => {
         options: instructorOps,
         requestFor: 'last_name',
         withForeign: true,
+        flattened: true
       },
     ]
   };
@@ -189,7 +213,6 @@ const CourseCrud = () => {
         </div>
       </div>
       <Datatable
-        crudData={crudData}
         modalData={modalData}
         handleSubmit={handleSubmit}
         apiData={flattenedData}
@@ -197,10 +220,9 @@ const CourseCrud = () => {
         setModalOpen={setModalOpen}
         crudType={"course"}
         deleteHandler={deleteCourse}
-        resetFormState={resetForm}
-        editModal={editModal}
-        setEditModal={setEditModal}
-        getDataFromId={loadDataById}
+        loadEditModal={loadEditModal}
+        closeModals={closeModals}
+        loadCreateModal={loadCreateModal}
       />
     </div>
   )

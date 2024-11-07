@@ -55,7 +55,8 @@ export const updateCourse = async (request, response) => {
 
     try {
         const updatedCourse = await Course.findByIdAndUpdate(id, course, { new: true });
-        response.status(200).json({ success: true, data: updatedCourse });
+        await updatedCourse.populate(['specialization', 'instructor']);
+        response.status(200).json({ success: true, data: updatedCourse, message:"Successful: Course Successfully Updated" });
     } catch (error) {
         response.status(500).json({ success: false, message: "Server Error: Error in Updating Course." })
     }

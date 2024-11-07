@@ -3,7 +3,10 @@ import mongoose from 'mongoose'
 
 export const getInstructor = async (request, response) => {
     try {
-        const instructor = await Instructor.find({});
+        const instructor = await Instructor.find({})
+        .populate('user')
+        .sort({ createdAt: -1 })
+        .exec();
         response.status(200).json({ success: true, message: "Instructor Retrieved.", data: instructor });
     } catch (error) {
         console.log("Error in fetching Instructor: ", error.message);
@@ -33,7 +36,8 @@ export const createInstructor = async (request, response) => {
 
     try {
         await newInstructor.save();
-        response.status(201).json({ success:true, data: newInstructor});
+        await newInstructor.populate('user');
+        response.status(201).json({ success:true, data: newInstructor, message:"Successful: User Successfully Created"});
     } catch (error) {
         console.error("Error in Create Instructor:", error.message);
         response.status(500).json({ success: false, message: "Server Error: Error in Creating Instructor."});
@@ -51,7 +55,8 @@ export const updateInstructor = async (request, response) => {
 
     try {
         const updatedInstructor = await Instructor.findByIdAndUpdate(id, instructor, {new:true});
-        response.status(200).json({ success:true, data:updatedInstructor });
+        await updatedInstructor.populate('user');
+        response.status(200).json({ success:true, data:updatedInstructor, message:"Successful: Instructor Successfully Updated" });
     } catch (error) {
         response.status(500).json({ success: false, message: "Server Error: Error in Updating Instructor."})
     }
