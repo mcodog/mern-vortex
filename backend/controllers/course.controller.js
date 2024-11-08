@@ -77,9 +77,6 @@ export const createCourse = async (request, response) => {
 
 export const updateCourse = async (request, response) => {
     const { id } = request.params;
-
-    
-
     let images = []
     if (Array.isArray(request.body.images)) {
         if (typeof request.body.images[0] === 'string') {

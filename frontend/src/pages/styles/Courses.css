@@ -20,12 +20,13 @@ section {
     /* margin-top: 65px; */
     display: flex;
     justify-content: center;
+    margin-top: 100px !important;
 }
 
 .main-container-column  {
     /* border: 1px solid blue; */
-    width: 1320px;
-    padding:10px;
+    width: 100%;
+    padding:10px 100px;
     display: flex;
     flex-direction: column;
     gap:10px;

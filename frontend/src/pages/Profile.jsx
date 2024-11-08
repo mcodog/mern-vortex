@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './styles/Profile.css'
 import { FaUser, FaBookOpen, FaInbox } from "react-icons/fa";
 import { FaGears } from "react-icons/fa6";
@@ -15,6 +15,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Button from '@mui/material/Button';
 import { useAuth } from '../auth/AuthContext';
 import Autocomplete from '@mui/material/Autocomplete';
+import axios from 'axios';
+import dayjs from 'dayjs';
 
 const Profile = () => {
     const [currentPage, setCurrentPage] = useState('User Information')
@@ -73,8 +75,65 @@ const UserInfo = () => {
     const [age, setAge] = React.useState('');
     const { isAuthenticated, user } = useAuth();
     // console.log(user)
-    const handleChange = (event) => {
-        setAge(event.target.value);
+    const [formState, setFormState] = useState({
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        gender: user.gender,
+        birthday: dayjs("2024-11-04T16:00:00.000Z"),
+        language: user.language,
+        country: user.country,
+        interests: user.interests,
+        avatar: user.avatar
+    });
+    const [image, setImage] = useState(user.avatar[0].url)
+
+    const fileInputRef = useRef(null);
+
+    const handleImageClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files)
+        const newImages = [];
+        setImage([]);
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                if (reader.readyState === 2) {
+                    setImage(reader.result)
+                    newImages.push(reader.result);
+                }
+            }
+            reader.readAsDataURL(file)
+        })
+        setFormState((prevState) => ({
+            ...prevState,
+            avatar: newImages,
+        }));
+    };
+
+    const handleOnChange = (event) => {
+        const { name, value } = event.target;
+        setFormState({
+            ...formState,
+            [name]: value,
+        });
+    };
+
+    const handleDateChange = (date) => {
+        setFormState({
+            ...formState,
+            birthday: date,
+        });
+    };
+
+    const handleInterestsChange = (event, newValue) => {
+        setFormState({
+            ...formState,
+            interests: newValue,
+        });
     };
 
     const language = [
@@ -142,6 +201,15 @@ const UserInfo = () => {
         "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
     ];
 
+    const handleSave = async () => {
+        try {
+            const res = await axios.put(`http://localhost:8000/api/user/${user._id}`, formState)
+            console.log(res)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
 
     return (
         <div className="personal-info">
@@ -149,13 +217,20 @@ const UserInfo = () => {
             <Divider />
             <div className="prime-container">
                 <div className="general-info">
-                    <div className="image-container">
-                        <img src="https://placehold.co/600x400" alt="" />
+                    <div className="image-container" onClick={handleImageClick} style={{ cursor: 'pointer' }}>
+                        <img src={image} alt="" />
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={handleFileChange}
+                            name="avatar"
+                        />
                     </div>
                     <div className="textfield-group">
-                        <TextField id="outlined-basic" label="Email" variant="outlined" className="text-field" value={user.email} />
-                        <TextField id="outlined-basic" label="First Name" variant="outlined" className="text-field" />
-                        <TextField id="outlined-basic" label="Last Name" variant="outlined" className="text-field" />
+                        <TextField id="outlined-basic" label="Email" value={formState.email} name="email" variant="outlined" className="text-field" onChange={handleOnChange} />
+                        <TextField id="outlined-basic" label="First Name" value={formState.first_name} name="first_name" variant="outlined" className="text-field" onChange={handleOnChange} />
+                        <TextField id="outlined-basic" label="Last Name" value={formState.last_name} name="last_name" variant="outlined" className="text-field" onChange={handleOnChange} />
                     </div>
                 </div>
                 <div className="textfield-group margin-top">
@@ -164,18 +239,19 @@ const UserInfo = () => {
                         <Select
                             labelId="gender-select-label"
                             id="gender-select"
-                            value={age}
+                            value={formState.gender}
                             label="Gender"
-                            onChange={handleChange}
+                            name="gender"
+                            onChange={handleOnChange}
                         >
-                            <MenuItem value={10}>Male</MenuItem>
-                            <MenuItem value={20}>Female</MenuItem>
-                            <MenuItem value={30}>Prefer not to say</MenuItem>
+                            <MenuItem value="Male">Male</MenuItem>
+                            <MenuItem value="Female">Female</MenuItem>
+                            <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
                         </Select>
                     </FormControl>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DatePicker']}>
-                            <DatePicker label="Basic date picker" />
+                            <DatePicker name="birthday" value={formState.birthday} label="Birthday" onChange={handleDateChange} />
                         </DemoContainer>
                     </LocalizationProvider>
                 </div>
@@ -185,9 +261,10 @@ const UserInfo = () => {
                         <Select
                             labelId="language-select-label"
                             id="language-select"
-
+                            value={formState.language}
                             label="Language"
-                            onChange={handleChange}
+                            onChange={handleOnChange}
+                            name="language"
                         >
                             {language.map((lang) => (
                                 <MenuItem key={lang} value={lang}>
@@ -201,9 +278,10 @@ const UserInfo = () => {
                         <Select
                             labelId="Countries-select-label"
                             id="Countries-select"
-
+                            value={formState.country}
                             label="Country"
-                            onChange={handleChange}
+                            onChange={handleOnChange}
+                            name="country"
                         >
                             {countries.map((country) => (
                                 <MenuItem key={country} value={country}>
@@ -216,8 +294,11 @@ const UserInfo = () => {
                 <Divider className='margin-top' />
                 <h4>Course Interests</h4>
                 <Autocomplete
+                    value={formState.interests}
+                    onChange={handleInterestsChange}
                     className='margin-top'
                     multiple
+                    name="interests"
                     id="multiple-limit-tags"
                     options={top100Films}
                     getOptionLabel={(option) => option.title}
@@ -229,7 +310,7 @@ const UserInfo = () => {
                 <Divider className='margin-top' />
                 <div className="textfield-group margin-top align-end">
                     <Button variant="outlined" className="outlined-btn">Cancel</Button>
-                    <Button variant="contained" className="contained-btn">Save Profile</Button>
+                    <Button variant="contained" className="contained-btn" onClick={handleSave}>Save Profile</Button>
                 </div>
             </div>
         </div>
@@ -245,32 +326,32 @@ const top100Films = [
     { title: "Schindler's List", year: 1993 },
     { title: 'Pulp Fiction', year: 1994 },
     {
-      title: 'The Lord of the Rings: The Return of the King',
-      year: 2003,
+        title: 'The Lord of the Rings: The Return of the King',
+        year: 2003,
     },
     { title: 'The Good, the Bad and the Ugly', year: 1966 },
     { title: 'Fight Club', year: 1999 },
     {
-      title: 'The Lord of the Rings: The Fellowship of the Ring',
-      year: 2001,
+        title: 'The Lord of the Rings: The Fellowship of the Ring',
+        year: 2001,
     },
     {
-      title: 'Star Wars: Episode V - The Empire Strikes Back',
-      year: 1980,
+        title: 'Star Wars: Episode V - The Empire Strikes Back',
+        year: 1980,
     },
     { title: 'Forrest Gump', year: 1994 },
     { title: 'Inception', year: 2010 },
     {
-      title: 'The Lord of the Rings: The Two Towers',
-      year: 2002,
+        title: 'The Lord of the Rings: The Two Towers',
+        year: 2002,
     },
     { title: "One Flew Over the Cuckoo's Nest", year: 1975 },
     { title: 'Goodfellas', year: 1990 },
     { title: 'The Matrix', year: 1999 },
     { title: 'Seven Samurai', year: 1954 },
     {
-      title: 'Star Wars: Episode IV - A New Hope',
-      year: 1977,
+        title: 'Star Wars: Episode IV - A New Hope',
+        year: 1977,
     },
     { title: 'City of God', year: 2002 },
     { title: 'Se7en', year: 1995 },
@@ -305,8 +386,8 @@ const top100Films = [
     { title: 'Alien', year: 1979 },
     { title: 'Sunset Boulevard', year: 1950 },
     {
-      title: 'Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb',
-      year: 1964,
+        title: 'Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb',
+        year: 1964,
     },
     { title: 'The Great Dictator', year: 1940 },
     { title: 'Cinema Paradiso', year: 1988 },
@@ -328,8 +409,8 @@ const top100Films = [
     { title: 'North by Northwest', year: 1959 },
     { title: 'Vertigo', year: 1958 },
     {
-      title: 'Star Wars: Episode VI - Return of the Jedi',
-      year: 1983,
+        title: 'Star Wars: Episode VI - Return of the Jedi',
+        year: 1983,
     },
     { title: 'Reservoir Dogs', year: 1992 },
     { title: 'Braveheart', year: 1995 },
@@ -342,8 +423,8 @@ const top100Films = [
     { title: 'Lawrence of Arabia', year: 1962 },
     { title: 'Double Indemnity', year: 1944 },
     {
-      title: 'Eternal Sunshine of the Spotless Mind',
-      year: 2004,
+        title: 'Eternal Sunshine of the Spotless Mind',
+        year: 2004,
     },
     { title: 'Amadeus', year: 1984 },
     { title: 'To Kill a Mockingbird', year: 1962 },
@@ -361,6 +442,6 @@ const top100Films = [
     { title: 'Snatch', year: 2000 },
     { title: '3 Idiots', year: 2009 },
     { title: 'Monty Python and the Holy Grail', year: 1975 },
-  ];
+];
 
 export default Profile
