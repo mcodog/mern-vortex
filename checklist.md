@@ -8,9 +8,9 @@
 
 # MP2 User Functions 20pts
 
-- [ ] username and password authentication 5pts 
+- [x] username and password authentication 5pts 
 - [ ] user profile update with photo upload. 5pts 
-- [ ] username and password firebase authentication 10pts
+- [x] username and password firebase authentication 10pts
 - [ ] user profile update with photo upload using firebase storage. 10pts
 
 # MP3 Review Ratings 20pts
@@ -55,6 +55,7 @@
 - [ ] infinite scroll on products list on homepage. 15pts
 
 # QUIZ 4
+
 - [ ] facebook or gmail login 15pts react-facebook-login or similar packages.
 - [ ] facebook or gmail login firebase 15pts
 

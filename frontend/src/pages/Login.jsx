@@ -28,8 +28,9 @@ const Login = () => {
         try {
             // const res = await axios.post(`http://localhost:8000/auth/`, formData)
             // console.log(res)
-            loginAttempt()
+            await loginAttempt()
             console.log("Logging in...")
+            window.location.href= "/"
         } catch (e) {
             console.log(e)
         }

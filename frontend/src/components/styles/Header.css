@@ -20,14 +20,25 @@ nav {
     background: transparent;
 
     z-index:100;
+    box-shadow: 0px 5px 8px 8px rgba(0,0,0,0.19);
 }
 
 .scrolled {
     /* background-color: red; */
     background-color: white;
     position: fixed;
-    transition: .5s;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    transition: 5s;
+    animation: slowDrop .5s;
+}
+
+@keyframes slowDrop {
+    0% {
+        transform: translateY(-75px);
+    }       
+    100% {
+        transform: translateY(0px);
+    }
 }
 
 .scrolled .site-title {
@@ -110,6 +121,13 @@ nav button {
     font-family: "Kanit", sans-serif;
     font-weight: 600;
     cursor: pointer;
+}
+
+.signin {
+    background-color: rgb(239, 239, 239) !important;
+    border-radius: 30px;
+    padding:10px 20px;
+    text-decoration: none;
 }
 
 .signin:focus {

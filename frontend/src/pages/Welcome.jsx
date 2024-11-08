@@ -11,11 +11,11 @@ const Welcome = () => {
         </div>
 
         <section className="hero-section">
-            <div class="main-hero">
-                <div class="main-container-row">
+            <div className="main-hero">
+                <div className="main-container-row">
                     <div className="container-col left-col">
                         <br /><br />
-                        <button>
+                        <button className='radi'>
                             Check out our mobile app and get exclusive access to discounts &nbsp; &nbsp;  
                             <i className="bi bi-circle-fill" style={{ fontSize: '8px' }}></i> &nbsp; &nbsp; 
                             <span className="readmore">

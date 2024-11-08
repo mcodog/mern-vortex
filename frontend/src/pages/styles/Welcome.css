@@ -8,6 +8,17 @@ body {
     overflow-x: hidden;
 }
 
+.remove-a-style a{
+    color:black;
+    text-decoration: none;
+}
+
+.radi {
+    padding:5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
 .hero-background-custom {
     width: 100vw;
     height:300px;

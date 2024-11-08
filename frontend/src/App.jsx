@@ -15,27 +15,37 @@ import InstructorCrud from './pages/admin/InstructorCrud'
 import Login from './pages/Login'
 
 import axios from 'axios'
+import { AuthProvider } from './auth/AuthContext';
+import ProtectedRoute from './auth/ProtectedRoute';
+import Profile from './pages/Profile'
 
 function App() {
   axios.defaults.withCredentials = true;
+
+
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Welcome />} />
-        <Route path="/courses" element={<Course />} />
-        <Route path="/course" element={<CourseItem />} />
-      </Route>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Welcome />} />
+          <Route path="/courses" element={<Course />} />
+          <Route path="/course" element={<CourseItem />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+        </Route>
 
-      <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
 
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="/admin/courses" element={<CourseCrud />} />
-        <Route path="/admin/categories" element={<CategoryCrud />} />
-        <Route path="/admin/users" element={<UsersCrud />} />
-        <Route path="/admin/instructors" element={<InstructorCrud />} />
-      </Route>
-    </Routes>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="/admin/courses" element={<CourseCrud />} />
+          <Route path="/admin/categories" element={<CategoryCrud />} />
+          <Route path="/admin/users" element={<UsersCrud />} />
+          <Route path="/admin/instructors" element={<InstructorCrud />} />
+        </Route>
+      </Routes>
+    </AuthProvider>
   )
 }
 

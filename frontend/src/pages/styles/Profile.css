@@ -1,0 +1,131 @@
+.profile-container {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    margin-top: 100px;
+    padding: 0px 100px;
+    gap:15px;
+}
+
+.profile-container * {
+    box-sizing: border-box;
+}
+
+.profile-container .main {
+    box-shadow: 0px 0px 5px 4px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    padding:20px;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+.main .personal-info {
+    width: 100%;
+    height: fit-content;
+    /* border:1px solid red; */
+}
+
+.profile-container .side {
+    /* border:1px solid red; */
+    height: 800px;
+    display: flex;
+    flex-direction: column;
+    gap:15px
+}
+
+.side .profile-info {
+    height: 70px;
+    width: 100%;
+    box-shadow: 0px 0px 5px 4px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    padding:20px;
+}
+
+.profile-info .profile-title {
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    /* font-weight: 600; */
+}
+
+.side .profile-navigation {
+    height: 100%;
+    width: 100%;
+    box-shadow: 0px 0px 5px 4px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.profile-navigation .profile-nav__item {
+    height: 60px;
+    /* border:1px solid red; */
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    cursor: pointer;
+}
+
+.profile-navigation .profile-nav__item:hover {
+    transition: .5s ease;
+    background-color: var(--primary-color);
+    color:white;
+}
+
+.profile-navigation .active {
+    background-color: var(--primary-color);
+    color:white;
+}
+
+.personal-info .prime-container {
+    /* border:1px solid red; */
+    padding: 10px 0px;
+    height: 100%;
+}
+
+.prime-container .general-info {
+    height: fit-content;
+    display: grid;
+    grid-template-columns: 20% 80%;
+    /* gap:10px; */
+}
+
+.general-info .image-container {
+    height: 190px;
+    width: 190px;
+    border-radius: 5px;
+}
+
+.image-container img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.prime-container .textfield-group, .prime-container .MuiStack-root {
+    width: 100%;
+    /* border:1px solid red; */
+    display: flex;
+    align-items: end;
+    gap:10px;
+}
+
+.MuiStack-root .MuiFormControl-root {
+    width: 100%;
+}
+
+.Mui-focused fieldset {
+    border-color: var(--primary-color) !important;
+}
+
+.MuiFormLabel-root.Mui-focused {
+    color: var(--primary-color) !important;
+}
+
+.text-field {
+    width: 100% !important;
+}
