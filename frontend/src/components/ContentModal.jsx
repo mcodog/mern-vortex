@@ -13,7 +13,7 @@ import { FaPlus } from 'react-icons/fa';
 
 const steps = ['Add General Information', 'Design Content', 'Summary'];
 
-const ContentModal = ({ data, closeModals }) => {
+const ContentModal = ({ data, closeModals, handleSubmit }) => {
   const [course, setCourse] = useState(data.data.data)
   const [contentCount, setContentCount] = useState(0)
   const [formData, setFormData] = useState({
@@ -29,10 +29,23 @@ const ContentModal = ({ data, closeModals }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    if (name === 'contentType') {
+      setFormData({
+        contentType: value,
+        title: '',
+        description: '',
+        duration: '',
+        notes: '',
+        chapters: [{ title: '', description: '' }],
+        questions: [{ question: '', options: '', correctAnswer: '' }],
+        url: '',
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleAddChapter = () => {
@@ -398,8 +411,8 @@ const ContentModal = ({ data, closeModals }) => {
                       Skip
                     </Button>
                   )}
-                  <Button className='contained-prime' variant="contained" onClick={handleNext}>
-                    {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                  <Button className='contained-prime' variant="contained" onClick={() => {handleSubmit(formData, course._id)}}>
+                    Submit
                   </Button>
                 </Box>
               </React.Fragment>

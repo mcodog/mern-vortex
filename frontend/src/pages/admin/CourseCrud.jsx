@@ -161,6 +161,7 @@ const CourseCrud = () => {
         price: res.data.data.price,
         specialization: res.data.data.specialization[0].title,
         instructor: res.data.data.instructor[0].last_name,
+        courseContents: res.data.data.courseContents,
         newData: true
       };
 
@@ -176,6 +177,7 @@ const CourseCrud = () => {
         price: res.data.data.price,
         specialization: res.data.data.specialization[0].title,
         instructor: res.data.data.instructor[0].last_name,
+        courseContents: res.data.data.courseContents,
         newData: true
       };
 
@@ -384,6 +386,18 @@ const CourseCrud = () => {
     }
   }
 
+  const handleSubmitContent = async(contentForm, id) => {
+    try {
+      const res = await axios.put(`http://localhost:8000/api/course/addContent/${id}`, contentForm)
+      console.log(res)
+      fetchData('course', setCourses)
+      setContentModal(false)
+      toast.success("Success: Course Content added successfully!")
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
   return (
     <div className="main-panel__column">
       <div className="md-thumbs">
@@ -434,7 +448,7 @@ const CourseCrud = () => {
               classNames="modal"
               unmountOnExit
             >
-              <ContentModal data={contentData} closeModals={closeModalsContent} />
+              <ContentModal data={contentData} closeModals={closeModalsContent} handleSubmit={handleSubmitContent} />
             </CSSTransition>
           </div>
         </div>
@@ -490,7 +504,6 @@ function Row(props) {
   const { row, handleCheck, loadEditModal, deleteCourse, loadContents } = props;
   const [open, setOpen] = React.useState(false);
 
-
   return (
     <React.Fragment>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -529,26 +542,30 @@ function Row(props) {
                     <TableCell>Content Type</TableCell>
                     <TableCell>Title</TableCell>
                     <TableCell align="right">Description</TableCell>
+                    <TableCell align="right">Duration</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.courseContents.map((content) => (
+                  {row.courseContents && row.courseContents.length > 0 && (
+                  row.courseContents.map((content) => (
                     <TableRow key={content.date}>
                       <TableCell component="th" scope="row">
                         {content.contentType}
                       </TableCell>
                       <TableCell>{content.title}</TableCell>
-                      <TableCell align="right">{content.description}</TableCell>
+                      <TableCell align="right">
+                        {content.description}
+                      </TableCell>
                       <TableCell align="right">
                         {content.duration}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )))}
                 </TableBody>
               </Table>
             </Box>
             {
-              row.courseContents.length == 0 ? (
+              row.courseContents && row.courseContents.length == 0 ? (
                 <div className="table-placeholder">
                   No Data Available
                 </div>

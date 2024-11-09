@@ -162,3 +162,42 @@ export const deleteCourse = async (request, response) => {
         response.status(500).json({ success: false, message: "Server Error: Error in Deleting Course." })
     }
 }
+
+export const addCourseContent = async (req, res) => {
+    const { id } = req.params;
+    const newContent = req.body;
+  
+    console.log(newContent);
+  
+    try {
+      const updatedCourse = await Course.findByIdAndUpdate(
+        id, // The ID of the course you want to update
+        {
+          $push: {
+            courseContents: newContent, // The new content to add to the courseContents array
+          },
+        },
+        { new: true } // Returns the updated document
+      );
+  
+      if (!updatedCourse) {
+        return res.status(404).json({
+          success: false,
+          message: "Course not found",
+        });
+      }
+  
+      res.status(200).json({
+        success: true,
+        data: updatedCourse,
+        message: "Course content successfully added",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error in adding course content",
+        error: error.message,
+      });
+    }
+  };
+  
