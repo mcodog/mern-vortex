@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Datatable from '../../components/Datatable'
 import axios from "axios"
 import toast from 'react-hot-toast'
-import { fetchData, createFunc, addToTable, deleteFunc, fetchDataN, updateFunc, addAndRemoveToTable, createFuncNoToast } from './Utils/CrudUtils'
+import { fetchData, createFunc, addToTable, deleteFunc, fetchDataN, updateFunc, addAndRemoveToTable, createFuncNoToast, updateFuncNoToast } from './Utils/CrudUtils'
 
 import CRUDModal from '../../components/CRUDModal';
 import { CSSTransition } from 'react-transition-group';
@@ -25,6 +25,7 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Button from '@mui/material/Button';
 
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -127,23 +128,48 @@ const CourseCrud = () => {
   };
 
   const handleUpdate = async () => {
-    const res = await updateFunc('course', formState._id, formState)
-    const newCourse = {
-      _id: res.data.data._id,
-      title: res.data.data.title,
-      description: res.data.data.description,
-      price: res.data.data.price,
-      specialization: res.data.data.specialization[0].title,
-      instructor: res.data.data.instructor[0].last_name,
-      newData: true
-    };
+    if (formState.images !== '') {
+      const uploadPromise = updateFuncNoToast('course', formState._id, formState)
+      toast.promise(uploadPromise, {
+        loading: 'Attempting to upload images...',
+        success: 'Course created successfully!',
+        error: 'Unsuccessful: Course Not Created.'
+      });
 
-    addAndRemoveToTable(setFlattenedData, newCourse)
-    resetForm()
-    setModalOpen(false);
+      const res = await uploadPromise
+      const newCourse = {
+        _id: res.data.data._id,
+        title: res.data.data.title,
+        description: res.data.data.description,
+        price: res.data.data.price,
+        specialization: res.data.data.specialization[0].title,
+        instructor: res.data.data.instructor[0].last_name,
+        newData: true
+      };
+
+      addAndRemoveToTable(setFlattenedData, newCourse)
+      resetForm()
+      setModalOpen(false);
+    } else {
+      const res = await updateFunc('course', formState._id, formState)
+      const newCourse = {
+        _id: res.data.data._id,
+        title: res.data.data.title,
+        description: res.data.data.description,
+        price: res.data.data.price,
+        specialization: res.data.data.specialization[0].title,
+        instructor: res.data.data.instructor[0].last_name,
+        newData: true
+      };
+
+      addAndRemoveToTable(setFlattenedData, newCourse)
+      resetForm()
+      setModalOpen(false);
+    }
   }
 
   const loadCreateModal = () => {
+    setImagesPreview([])
     resetForm()
     setCrudMode('create')
     setMode("Create Course")
@@ -152,10 +178,18 @@ const CourseCrud = () => {
   }
 
   const loadEditModal = async (id) => {
+    setImagesPreview([])
     resetForm()
     setCrudMode('update')
     const response = await fetchDataN('course', id)
     setFormState(response.data.data)
+    console.log(response.data.data)
+    if (response.data.data.images.length > 0) {
+      response.data.data.images.map((img) => {
+        setImagesPreview(oldArray => [...oldArray, img.url])
+      })
+
+    }
     setMode("Edit Course")
     setDesc("Placeholder")
     setModalOpen(true)
@@ -371,7 +405,7 @@ const CourseCrud = () => {
               classNames="modal"
               unmountOnExit
             >
-              <CRUDModal modalData={modalData} closeModals={closeModals} handleSubmit={handleSubmit} />
+              <CRUDModal modalData={modalData} closeModals={closeModals} handleSubmit={handleSubmit} imagesPreview={imagesPreview} />
             </CSSTransition>
           </div>
         </div>
@@ -405,7 +439,7 @@ const CourseCrud = () => {
                 </TableHead>
                 <TableBody>
                   {flattenedData.map((row) => (
-                    <Row key={row._id} row={row} handleCheck={handleCheck} />
+                    <Row key={row._id} row={row} handleCheck={handleCheck} loadEditModal={loadEditModal} deleteCourse={deleteCourse} />
                   ))}
                 </TableBody>
               </Table>
@@ -418,7 +452,7 @@ const CourseCrud = () => {
 }
 
 function Row(props) {
-  const { row, handleCheck } = props;
+  const { row, handleCheck, loadEditModal, deleteCourse } = props;
   const [open, setOpen] = React.useState(false);
   console.log(row)
   return (
@@ -447,7 +481,7 @@ function Row(props) {
         <TableCell align="right">{row.instructor}</TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0, width: '100%' }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">
@@ -478,6 +512,10 @@ function Row(props) {
                 </TableBody> */}
               </Table>
             </Box>
+            <div className="collapsible-table__controls">
+              <Button className='collapsible-control__item delete' variant="contained" onClick={() => { deleteCourse(row._id) }}>Delete</Button>
+              <Button className='collapsible-control__item update' variant="contained" onClick={() => { loadEditModal(row._id) }}>Update</Button>
+            </div>
           </Collapse>
         </TableCell>
       </TableRow>

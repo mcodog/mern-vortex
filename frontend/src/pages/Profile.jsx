@@ -17,6 +17,7 @@ import { useAuth } from '../auth/AuthContext';
 import Autocomplete from '@mui/material/Autocomplete';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
     const [currentPage, setCurrentPage] = useState('User Information')
@@ -203,8 +204,17 @@ const UserInfo = () => {
 
     const handleSave = async () => {
         try {
-            const res = await axios.put(`http://localhost:8000/api/user/${user._id}`, formState)
+            const saveProfilePromise = axios.put(`http://localhost:8000/api/user/${user._id}`, formState)
+
+            toast.promise(saveProfilePromise, {
+                loading: 'Saving Profile...',
+                success: 'Profile saved successfully!',
+                error: 'Unsuccessful: Changes to profile are not saved.'
+              });
+
+            const res = await saveProfilePromise
             console.log(res)
+            setImage(res.data.data.avatar[0].url)
         } catch (e) {
             console.log(e)
         }

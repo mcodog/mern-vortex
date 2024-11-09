@@ -80,6 +80,18 @@ export const updateCourse = async (request, response) => {
     let images = []
     if (Array.isArray(request.body.images)) {
         if (typeof request.body.images[0] === 'string') {
+            const productImage = await Course.findById(id);
+
+            if (productImage && productImage.images.length > 0) {
+                for (const img of productImage.images) {
+                    try {
+                        await cloudinary.v2.uploader.destroy(img.public_id);
+                    } catch (error) {
+                        console.log("Can't delete previous image:", error);
+                    }
+                }
+            }
+
             images = request.body.images;
             let imagesLinks = [];
             for (let i = 0; i < images.length; i++) {
@@ -103,7 +115,7 @@ export const updateCourse = async (request, response) => {
             }
             request.body.images = imagesLinks
         } else if (typeof request.body.images[0] === 'object') {
-            
+
         }
     } else if (typeof request.body.images === 'string') {
         images.push(request.body.images);
@@ -127,6 +139,18 @@ export const updateCourse = async (request, response) => {
 export const deleteCourse = async (request, response) => {
     const { id } = request.params;
     try {
+        const productImage = await Course.findById(id);
+
+        if (productImage && productImage.images.length > 0) {
+            for (const img of productImage.images) {
+                try {
+                    await cloudinary.v2.uploader.destroy(img.public_id);
+                } catch (error) {
+                    console.log("Can't delete previous image:", error);
+                }
+            }
+        }
+
         const result = await Course.findByIdAndDelete(id);
 
         if (!result) {

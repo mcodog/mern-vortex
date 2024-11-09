@@ -9,7 +9,7 @@
 # MP2 User Functions 20pts
 
 - [x] username and password authentication 5pts 
-- [ ] user profile update with photo upload. 5pts 
+- [x] user profile update with photo upload. 5pts 
 - [x] username and password firebase authentication 10pts
 - [ ] user profile update with photo upload using firebase storage. 10pts
 

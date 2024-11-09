@@ -15,7 +15,9 @@
     --danger-color: rgb(181, 73, 73);
     --success-color: rgb(36, 216, 135);
     --warning-color: rgb(229, 214, 116);
-    --neutral-color: rgb(179, 155, 238);
+    --neutral-color: rgb(179, 155, 238); 
+
+    --info-color: rgb(58, 155, 194);
 }
 
 .prime {

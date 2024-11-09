@@ -275,6 +275,33 @@
     gap:10px;
 }
 
+.collapsible-table__controls {
+    width: 100%;
+    height: 70px;
+    /* border:1px solid red; */
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap:10px;
+}
+
+.collapsible-control__item, .collapsible-table__controls .MuiButton-contained{
+    /* border: 1px solid red !important; */
+    color: white;
+    /* background-color: red; */
+    padding: 10px 30px !important;
+    font-weight: 700;
+}
+
+.collapsible-table__controls .update {
+    background-color: var(--primary-color);
+}
+
+.collapsible-table__controls .delete {
+    background-color: white;
+    color:red;
+}
+
 .data-controls .prime-button {
     all: unset;
     background-color: var(--primary-color);

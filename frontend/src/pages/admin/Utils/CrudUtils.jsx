@@ -64,6 +64,15 @@ export const updateFunc = async (object, id, formState) => {
       }
 }
 
+export const updateFuncNoToast = async (object, id, formState) => {
+    try {
+        const response = await axios.put(`http://localhost:8000/api/${object}/${id}`, formState)
+        return response
+      } catch(error) {
+        console.log("Error", error)
+      }
+}
+
 export const addAndRemoveToTable = async (setForm, newEntry) => {
     setForm((prevData) => [newEntry, ...prevData]);
 
