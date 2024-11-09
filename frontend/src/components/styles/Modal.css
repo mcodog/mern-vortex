@@ -17,7 +17,7 @@
 .modalBackground .modal {
     position: relative;
     width: 1000px;
-    height: 500px;
+    height: 520px;
     background-color: white;
     display: flex;
     flex-direction: column;
@@ -171,6 +171,12 @@
     margin-right: 10px;
 }
 
+.maxed-container {
+    max-height: 350px;
+    overflow-y: scroll;
+    /* border:1px solid red; */
+}
+
 .input-group input, .input-group-col .col input, .input-group select  {
     border: 1px solid var(--pale-color);
     border-radius: 10px;
@@ -199,8 +205,13 @@
     left:0;
     bottom:0;
     width: 100%;
-    height: 60px;
+    height: 90px;
     padding-right: 20px;
+    margin-top: 10px !important;
+}
+
+.Mui-active circle, .Mui-completed path {
+    color: var(--primary-color) !important;
 }
 
 form.crud-form {

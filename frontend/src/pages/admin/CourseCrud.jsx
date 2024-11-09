@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { fetchData, createFunc, addToTable, deleteFunc, fetchDataN, updateFunc, addAndRemoveToTable, createFuncNoToast, updateFuncNoToast } from './Utils/CrudUtils'
 
 import CRUDModal from '../../components/CRUDModal';
+import ContentModal from '../../components/ContentModal'
 import { CSSTransition } from 'react-transition-group';
 import axiosInstance from 'axios'
 import { useAxiosLoader } from 'use-axios-loader'
@@ -40,6 +41,22 @@ const CourseCrud = () => {
   const [desc, setDesc] = useState()
   const [crudMode, setCrudMode] = useState('read')
   const [imagesPreview, setImagesPreview] = useState()
+  const [contentData, setContentData] = useState()
+  const [contentModal, setContentModal] = useState(false)
+  
+  const closeModalsContent = () => {
+    setContentModal(false)
+  }
+
+  const loadContents = async(id) => {
+    try {
+      const res = await axios.get(`http://localhost:8000/api/course/${id}`)
+      setContentData(res)
+      setContentModal(true)
+    } catch(e) {
+      console.log(e)
+    }
+  }
 
   const deleteCourse = async (id) => {
     deleteFunc('course', id, setCourses)
@@ -304,11 +321,14 @@ const CourseCrud = () => {
           : (Array.isArray(item.specialization) && item.specialization.length > 0)
             ? item.specialization[0].title
             : 'N/A',
+        courseContents: item.courseContents,
         createdAt: new Date(item.createdAt).toLocaleString(),
         updatedAt: new Date(item.updatedAt).toLocaleString(),
       }));
       setFlattenedData(flattened);
+      console.log(flattened)
     }
+
   }, [courses]);
 
 
@@ -407,6 +427,15 @@ const CourseCrud = () => {
             >
               <CRUDModal modalData={modalData} closeModals={closeModals} handleSubmit={handleSubmit} imagesPreview={imagesPreview} />
             </CSSTransition>
+
+            <CSSTransition
+              in={contentModal}
+              timeout={300}
+              classNames="modal"
+              unmountOnExit
+            >
+              <ContentModal data={contentData} closeModals={closeModalsContent} />
+            </CSSTransition>
           </div>
         </div>
 
@@ -438,9 +467,15 @@ const CourseCrud = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {flattenedData.map((row) => (
-                    <Row key={row._id} row={row} handleCheck={handleCheck} loadEditModal={loadEditModal} deleteCourse={deleteCourse} />
-                  ))}
+
+                  {flattenedData.length > 0 ? (
+                    flattenedData.map((row) => (
+                      <Row key={row._id} row={row} handleCheck={handleCheck} loadEditModal={loadEditModal} deleteCourse={deleteCourse} loadContents={loadContents} />
+                    ))
+                  ) : (
+                    <div className="table-placeholder">No Data Available</div>
+                  )}
+
                 </TableBody>
               </Table>
             </TableContainer>
@@ -452,9 +487,10 @@ const CourseCrud = () => {
 }
 
 function Row(props) {
-  const { row, handleCheck, loadEditModal, deleteCourse } = props;
+  const { row, handleCheck, loadEditModal, deleteCourse, loadContents } = props;
   const [open, setOpen] = React.useState(false);
-  console.log(row)
+
+
   return (
     <React.Fragment>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -485,33 +521,47 @@ function Row(props) {
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">
-                History
+                Course Contents
               </Typography>
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Customer</TableCell>
-                    <TableCell align="right">Amount</TableCell>
-                    <TableCell align="right">Total price ($)</TableCell>
+                    <TableCell>Content Type</TableCell>
+                    <TableCell>Title</TableCell>
+                    <TableCell align="right">Description</TableCell>
                   </TableRow>
                 </TableHead>
-                {/* <TableBody>
-                  {row.history.map((historyRow) => (
-                    <TableRow key={historyRow.date}>
+                <TableBody>
+                  {row.courseContents.map((content) => (
+                    <TableRow key={content.date}>
                       <TableCell component="th" scope="row">
-                        {historyRow.date}
+                        {content.contentType}
                       </TableCell>
-                      <TableCell>{historyRow.customerId}</TableCell>
-                      <TableCell align="right">{historyRow.amount}</TableCell>
+                      <TableCell>{content.title}</TableCell>
+                      <TableCell align="right">{content.description}</TableCell>
                       <TableCell align="right">
-                        {Math.round(historyRow.amount * row.price * 100) / 100}
+                        {content.duration}
                       </TableCell>
                     </TableRow>
                   ))}
-                </TableBody> */}
+                </TableBody>
               </Table>
             </Box>
+            {
+              row.courseContents.length == 0 ? (
+                <div className="table-placeholder">
+                  No Data Available
+                </div>
+              ) : (
+                <div></div>
+              )
+            }
+            <div className="collapsible-table__controls">
+              <button className="add-content" onClick={() => { loadContents(row._id) }}>
+                <FaPlus /> &nbsp;
+                Add New Content
+              </button>
+            </div>
             <div className="collapsible-table__controls">
               <Button className='collapsible-control__item delete' variant="contained" onClick={() => { deleteCourse(row._id) }}>Delete</Button>
               <Button className='collapsible-control__item update' variant="contained" onClick={() => { loadEditModal(row._id) }}>Update</Button>

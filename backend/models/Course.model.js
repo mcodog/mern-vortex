@@ -39,6 +39,38 @@ const courseSchema = mongoose.Schema({
             }
         }
     ],   
+    courseContents: [
+        {
+            contentType: {
+                type: String,
+                enum: ['Learning Module', 'Examination Module', 'Video Discussion'],
+                required: true,
+            },
+            title: { type: String, required: true },
+            description: { type: String },
+            duration: { type: Number }, 
+            contentItems: [
+                {
+
+                    url: { type: String }, 
+                    chapters: [
+                        {
+                            chapterTitle: { type: String },
+                            chapterContent: { type: String },
+                        }
+                    ],
+                    questions: [
+                        {
+                            questionText: { type: String },
+                            options: { type: String },
+                            correctAnswer: { type: String }
+                        }
+                    ],
+                    notes: { type: String } 
+                }
+            ]
+        }
+    ],
     },
 
     {
