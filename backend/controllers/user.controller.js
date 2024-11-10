@@ -1,10 +1,14 @@
 import User from "../models/User.model.js"
 import mongoose from 'mongoose'
 import cloudinary from 'cloudinary'
+import Course from "../models/Course.model.js";
 
 export const getUser = async (request, response) => {
     try {
-        const user = await User.find({});
+        const user = await User.find({}).populate({
+            path: 'cart.course_id', 
+            model: 'Course' 
+        }).exec();
         response.status(200).json({ success: true, message: "Users Retrieved.", data: user });
     } catch (error) {
         console.log("Error in fetching Users: ", error.message);
@@ -15,7 +19,10 @@ export const getUser = async (request, response) => {
 export const getOneUser = async (request, response) => {
     try {
         const { id } = request.params;
-        const user = await User.findById(id);
+        const user = await User.find({}).populate({
+            path: 'cart.course_id', 
+            model: 'Course' 
+        }).exec();
         response.status(200).json({ success: true, message: "Users Retrieved.", data: user });
     } catch (error) {
         console.log("Error in fetching Users: ", error.message);
@@ -90,10 +97,12 @@ export const updateUser = async (request, response) => {
 
     let interests = []
 
-    for(let i = 0; i < request.body.interests.length; i++) {
-        interests.push({
-            title: request.body.interests[i].title
-        })
+    if (request.body.interests && request.body.interests.length > 0) {
+        for (let i = 0; i < request.body.interests.length; i++) {
+            interests.push({
+                title: request.body.interests[i].title
+            });
+        }
     }
 
     request.body.interests = interests
@@ -127,3 +136,73 @@ export const deleteUser = async (request, response) => {
         response.status(500).json({ success: false, message: "Server Error: Error in Deleting User." })
     }
 }
+
+export const addToCart = async(req, res) => {
+    try { 
+        const { userId } = req.params
+        const { course_id } = req.body
+
+        const user = await User.findById(userId)
+        const course = await Course.findById(course_id)
+
+        if (!user) {
+            return res.status(404).send({ message: 'User not Found.' });
+        }
+
+        if (!course) {
+            return res.status(404).send({ message: 'Course not Found.' });
+        }
+
+        const existingCartItem = user.cart.find(item => item.course_id.toString() === course_id);
+
+        if (existingCartItem) {
+            return res.status(200).send({ success:false, message: "This Item is already added to cart." })
+        } else {
+            user.cart.push({ course_id })
+        }
+
+        await user.save()
+        return res.status(200).send({ success: true, message: "Successful: Course has been added to Cart." })
+    } catch(error) {
+        res.status(500).json({ success:false, message: "Server Error", error })
+    }
+}
+
+export const processCheckout = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const checkoutItems = req.body; // Array of items with course id and price
+        // console.log(checkoutItems)
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send({ message: 'User not Found.' });
+        }
+
+        // Calculate the total cost
+        const totalCost = checkoutItems.reduce((acc, item) => acc + item.price, 0);
+
+        // Filter out the items in the user's cart that were purchased
+        user.cart = user.cart.filter(
+            cartItem => !checkoutItems.some(item => item.id === String(cartItem.course_id))
+        );
+
+        // Create the order object
+        const order = {
+            course: checkoutItems.map(item => ({
+                course_id: item.id
+            })),
+            total_cost: totalCost
+        };
+
+        // Add the order to the user's checkout
+        user.checkout.push({ order });
+
+        // Save the user with updated cart and checkout data
+        await user.save();
+
+        res.status(200).json({ success: true, message: 'Checkout processed successfully', order });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error: Process Checkout", error });
+    }
+};

@@ -29,7 +29,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Welcome />} />
           <Route path="/courses" element={<Course />} />
-          <Route path="/course" element={<CourseItem />} />
+          <Route path="/course/:id" element={<CourseItem />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<Profile />} />
           </Route>

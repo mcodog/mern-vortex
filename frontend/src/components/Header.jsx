@@ -72,15 +72,19 @@ const Header = () => {
         {
           isAuthenticated ? (
             <Fab
+              className='signin-icon__btn'
               size="small"
               aria-label="profile"
               sx={{
-                backgroundColor: 'darkGray',
+                backgroundColor: 'black',
                 width: 30,
                 height: 30,
                 minHeight: 'auto',
                 color: '#fff',
                 '&:hover': {
+                  backgroundColor: 'black',
+                },
+                '&:focus': {
                   backgroundColor: 'black',
                 },
               }}

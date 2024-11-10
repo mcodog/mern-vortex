@@ -29,7 +29,10 @@ admin.initializeApp({
 
 export const checkUser = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).populate({
+            path: 'cart.course_id', 
+            model: 'Course' 
+        }).exec();
 
         return res.status(200).json({
             success: true,

@@ -29,21 +29,80 @@ section {
 
 .main-container {
     /* border:1px solid red; */
-    width: 1420px;
     height: 2000px;
     padding:10px;
     display: flex;
     flex-direction: row;
     gap:30px;
-    padding:10px;
+    padding:0px 100px;
 }
 
 .controls {
     /* border:1px solid red; */
-    width: 35%;
-    height: 670px;
+    width: 420px;
+    height: 600px;
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding:20px;
 }
+
+.controls .course-controls {
+    margin-top: 10px;
+    /* border:1px solid red; */
+    height: 100%;
+}
+
+.course-controls .big-with__small {
+    display: flex;
+    gap:10px;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}
+
+.mui-button__icon { 
+    font-size: 25px !important;
+    font-weight: 800 !important;
+}
+
+.small-margin-y {
+    margin: 10px 0px !important;
+}
+.medium-margin-y {
+    margin: 30px 0px !important;
+}
+
+.sub-promo .promo-font {
+    font-size: 18px;
+}
+
+.sub-promo .promo-info {
+    color:gray;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+}
+
+.sm-spacer {
+    margin: 10px 10px !important;
+}
+
+.w-100.MuiButton-contained.MuiButton-containedPrimary {
+    margin-top: 10px !important;
+    width: 100%;
+    height: 50px;
+    background-color: black !important;
+}
+
+.course-controls .MuiButton-contained {
+    background-color: var(--primary-color) !important;
+    font-size: 10px;
+}
+.course-controls .MuiButton-outlined {
+    border: 2px solid var(--primary-color) !important;
+    color: var(--primary-color);
+}
+
 
 .details {
     /* border:1px solid red; */
@@ -176,4 +235,59 @@ section {
 
 .highlighted {
     color: #ff495b;
+}
+
+.carousel-img__container {
+    /* border:1px solid red; */
+    height:300px !important;
+    width: 100% !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.img-container__course {
+    height: 100%;
+    width: 100%;
+    /* border:1px solid red; */
+    box-sizing: border-box;
+}
+
+.img-container__course img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    overflow: hidden;
+}
+
+.carousel-container {
+    /* border:1px solid green; */
+    padding:5px;
+    height: 300px;
+}
+
+.custom-carousel {
+    /* border:1px solid red; */
+    height: 300px;
+}
+
+.colored-button {
+    display: flex;
+    justify-content: space-between;
+}
+
+.colored-button .MuiButton-contained {
+    background-color: var(--primary-color);
+    color:white !important
+}
+
+.colored-button .MuiButtonBase-root {
+    color: var(--primary-color)
+}
+
+.cart-list {
+    max-height: 450px;
+    overflow-y: scroll;
+    /* border:1px solid red; */
 }

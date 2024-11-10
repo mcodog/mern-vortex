@@ -18,7 +18,7 @@ export const getCourse = async (request, response) => {
 export const getOneCourse = async (request, response) => {
     try {
         const { id } = request.params;
-        const course = await Course.findById(id);
+        const course = await Course.findById(id).populate('specialization').exec();
         response.status(200).json({ success: true, message: "Course Retrieved.", data: course });
     } catch (error) {
         console.log("Error in fetching Course: ", error.message);

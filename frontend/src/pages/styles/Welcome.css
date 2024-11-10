@@ -41,7 +41,7 @@ body {
 }
 
 .hero-section {
-    height: 1100px;
+    height: 800px;
     display: flex;
     flex-direction: column;
 }
@@ -306,4 +306,62 @@ body {
     border: 1px solid green;
     height: 333px;
     width: 100%;
+}
+
+.main-container {
+    /* border:1px solid red; */
+}
+
+.sub-plans__container {
+    /* border:1px solid blue; */
+    width: 100%;
+}
+
+.sub-plans__container .plans-grid {
+    display: grid;
+    grid-template-columns: 30% 30% 30%;
+    height: 500px;
+    gap:20px;
+    margin-top: 20px  !important;
+}
+
+.plans-grid .plan-card {
+    /* border:1px solid red; */
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.3);
+    padding:20px;
+}
+
+.sub-plans__container .sub-plan__title {
+    width: 100%;
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+}
+
+.sub-plans__container .sub-plan__tagline {
+    width: 100%;
+    text-align: center;
+    font-size: 22px;
+    color: gray;
+}
+
+.plan-card .plan-title {
+    width: 100%;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 500;
+}
+
+.sm-margin-y {
+    margin: 10px 0px;
+}
+
+.sm-font {
+    font-size: 10px !important; 
+}
+
+.info-tip {
+    color:gray;
+    font-size: 10px;
 }

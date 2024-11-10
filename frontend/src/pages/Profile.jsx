@@ -18,6 +18,8 @@ import Autocomplete from '@mui/material/Autocomplete';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
+import { FaShoppingCart } from "react-icons/fa";
+import Checkbox from '@mui/material/Checkbox';
 
 const Profile = () => {
     const [currentPage, setCurrentPage] = useState('User Information')
@@ -38,6 +40,14 @@ const Profile = () => {
                         <FaUser />
                         &nbsp;
                         User Information
+                    </div>
+                    <div
+                        className={`profile-nav__item ${currentPage == 'Cart' ? 'active' : ''}`}
+                        onClick={() => { setCurrentPage('Cart') }}
+                    >
+                        <FaShoppingCart />
+                        &nbsp;
+                        Cart
                     </div>
                     <div
                         className={`profile-nav__item ${currentPage == 'Enrolled Courses' ? 'active' : ''}`}
@@ -66,7 +76,16 @@ const Profile = () => {
                 </div>
             </div>
             <div className="main">
-                <UserInfo />
+                {
+                    currentPage == 'User Information' ? (
+                        <UserInfo />
+                    ) : currentPage == 'Cart' ? (
+                        <Cart />
+                    ) : (
+                        <div></div>
+                    )
+                }
+
             </div>
         </div>
     )
@@ -76,6 +95,21 @@ const UserInfo = () => {
     const [age, setAge] = React.useState('');
     const { isAuthenticated, user } = useAuth();
     // console.log(user)
+    const [categoryOptions, setCategoryOptions] = useState()
+    const fetchCat = async () => {
+        try {
+            const res = await axios.get(`http://localhost:8000/api/category`)
+            setCategoryOptions(res.data.data)
+            console.log(res.data.data)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    useEffect(() => {
+        fetchCat()
+    }, [])
+
     const [formState, setFormState] = useState({
         email: user.email,
         first_name: user.first_name,
@@ -85,7 +119,8 @@ const UserInfo = () => {
         language: user.language,
         country: user.country,
         interests: user.interests,
-        avatar: user.avatar
+        avatar: user.avatar,
+        membership_type: user.membership_type
     });
     const [image, setImage] = useState(user.avatar[0].url)
 
@@ -210,7 +245,7 @@ const UserInfo = () => {
                 loading: 'Saving Profile...',
                 success: 'Profile saved successfully!',
                 error: 'Unsuccessful: Changes to profile are not saved.'
-              });
+            });
 
             const res = await saveProfilePromise
             console.log(res)
@@ -310,13 +345,16 @@ const UserInfo = () => {
                     multiple
                     name="interests"
                     id="multiple-limit-tags"
-                    options={top100Films}
+                    options={categoryOptions}
                     getOptionLabel={(option) => option.title}
                     renderInput={(params) => (
-                        <TextField {...params} label="Interests" placeholder="Favorites" />
+                        <TextField {...params} label="Interests" placeholder="Interests" />
                     )}
                     fullWidth
                 />
+                <Divider className='margin-top' />
+                <h4>Membership Type</h4>
+                <TextField readonly id="outlined-basic" label="Membership Type" variant="outlined" className="text-field" value={formState.membership_type} />
                 <Divider className='margin-top' />
                 <div className="textfield-group margin-top align-end">
                     <Button variant="outlined" className="outlined-btn">Cancel</Button>
@@ -327,131 +365,136 @@ const UserInfo = () => {
     )
 }
 
-const top100Films = [
-    { title: 'The Shawshank Redemption', year: 1994 },
-    { title: 'The Godfather', year: 1972 },
-    { title: 'The Godfather: Part II', year: 1974 },
-    { title: 'The Dark Knight', year: 2008 },
-    { title: '12 Angry Men', year: 1957 },
-    { title: "Schindler's List", year: 1993 },
-    { title: 'Pulp Fiction', year: 1994 },
-    {
-        title: 'The Lord of the Rings: The Return of the King',
-        year: 2003,
-    },
-    { title: 'The Good, the Bad and the Ugly', year: 1966 },
-    { title: 'Fight Club', year: 1999 },
-    {
-        title: 'The Lord of the Rings: The Fellowship of the Ring',
-        year: 2001,
-    },
-    {
-        title: 'Star Wars: Episode V - The Empire Strikes Back',
-        year: 1980,
-    },
-    { title: 'Forrest Gump', year: 1994 },
-    { title: 'Inception', year: 2010 },
-    {
-        title: 'The Lord of the Rings: The Two Towers',
-        year: 2002,
-    },
-    { title: "One Flew Over the Cuckoo's Nest", year: 1975 },
-    { title: 'Goodfellas', year: 1990 },
-    { title: 'The Matrix', year: 1999 },
-    { title: 'Seven Samurai', year: 1954 },
-    {
-        title: 'Star Wars: Episode IV - A New Hope',
-        year: 1977,
-    },
-    { title: 'City of God', year: 2002 },
-    { title: 'Se7en', year: 1995 },
-    { title: 'The Silence of the Lambs', year: 1991 },
-    { title: "It's a Wonderful Life", year: 1946 },
-    { title: 'Life Is Beautiful', year: 1997 },
-    { title: 'The Usual Suspects', year: 1995 },
-    { title: 'Léon: The Professional', year: 1994 },
-    { title: 'Spirited Away', year: 2001 },
-    { title: 'Saving Private Ryan', year: 1998 },
-    { title: 'Once Upon a Time in the West', year: 1968 },
-    { title: 'American History X', year: 1998 },
-    { title: 'Interstellar', year: 2014 },
-    { title: 'Casablanca', year: 1942 },
-    { title: 'City Lights', year: 1931 },
-    { title: 'Psycho', year: 1960 },
-    { title: 'The Green Mile', year: 1999 },
-    { title: 'The Intouchables', year: 2011 },
-    { title: 'Modern Times', year: 1936 },
-    { title: 'Raiders of the Lost Ark', year: 1981 },
-    { title: 'Rear Window', year: 1954 },
-    { title: 'The Pianist', year: 2002 },
-    { title: 'The Departed', year: 2006 },
-    { title: 'Terminator 2: Judgment Day', year: 1991 },
-    { title: 'Back to the Future', year: 1985 },
-    { title: 'Whiplash', year: 2014 },
-    { title: 'Gladiator', year: 2000 },
-    { title: 'Memento', year: 2000 },
-    { title: 'The Prestige', year: 2006 },
-    { title: 'The Lion King', year: 1994 },
-    { title: 'Apocalypse Now', year: 1979 },
-    { title: 'Alien', year: 1979 },
-    { title: 'Sunset Boulevard', year: 1950 },
-    {
-        title: 'Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb',
-        year: 1964,
-    },
-    { title: 'The Great Dictator', year: 1940 },
-    { title: 'Cinema Paradiso', year: 1988 },
-    { title: 'The Lives of Others', year: 2006 },
-    { title: 'Grave of the Fireflies', year: 1988 },
-    { title: 'Paths of Glory', year: 1957 },
-    { title: 'Django Unchained', year: 2012 },
-    { title: 'The Shining', year: 1980 },
-    { title: 'WALL·E', year: 2008 },
-    { title: 'American Beauty', year: 1999 },
-    { title: 'The Dark Knight Rises', year: 2012 },
-    { title: 'Princess Mononoke', year: 1997 },
-    { title: 'Aliens', year: 1986 },
-    { title: 'Oldboy', year: 2003 },
-    { title: 'Once Upon a Time in America', year: 1984 },
-    { title: 'Witness for the Prosecution', year: 1957 },
-    { title: 'Das Boot', year: 1981 },
-    { title: 'Citizen Kane', year: 1941 },
-    { title: 'North by Northwest', year: 1959 },
-    { title: 'Vertigo', year: 1958 },
-    {
-        title: 'Star Wars: Episode VI - Return of the Jedi',
-        year: 1983,
-    },
-    { title: 'Reservoir Dogs', year: 1992 },
-    { title: 'Braveheart', year: 1995 },
-    { title: 'M', year: 1931 },
-    { title: 'Requiem for a Dream', year: 2000 },
-    { title: 'Amélie', year: 2001 },
-    { title: 'A Clockwork Orange', year: 1971 },
-    { title: 'Like Stars on Earth', year: 2007 },
-    { title: 'Taxi Driver', year: 1976 },
-    { title: 'Lawrence of Arabia', year: 1962 },
-    { title: 'Double Indemnity', year: 1944 },
-    {
-        title: 'Eternal Sunshine of the Spotless Mind',
-        year: 2004,
-    },
-    { title: 'Amadeus', year: 1984 },
-    { title: 'To Kill a Mockingbird', year: 1962 },
-    { title: 'Toy Story 3', year: 2010 },
-    { title: 'Logan', year: 2017 },
-    { title: 'Full Metal Jacket', year: 1987 },
-    { title: 'Dangal', year: 2016 },
-    { title: 'The Sting', year: 1973 },
-    { title: '2001: A Space Odyssey', year: 1968 },
-    { title: "Singin' in the Rain", year: 1952 },
-    { title: 'Toy Story', year: 1995 },
-    { title: 'Bicycle Thieves', year: 1948 },
-    { title: 'The Kid', year: 1921 },
-    { title: 'Inglourious Basterds', year: 2009 },
-    { title: 'Snatch', year: 2000 },
-    { title: '3 Idiots', year: 2009 },
-    { title: 'Monty Python and the Holy Grail', year: 1975 },
-];
+const Cart = () => {
+    const { isAuthenticated, user } = useAuth();
+    const [total, setTotal] = useState(0)
+    const [deduc, setDeduc] = useState(0)
+    const [memDeduc, setMemDeduc] = useState(0)
+    const [selectedItems, setSelectedItems] = useState([])
+    useEffect(() => {
+        calculateTotal()
+    }, [])
+
+    useEffect(() => {
+        calculateTotal()
+    }, [selectedItems])
+
+    const calculateTotal = () => {
+        let total = 0;
+        selectedItems.forEach((item) => {
+            total += item.price;
+        });
+        setTotal(total);
+        if (user.membership_type != '') {
+            setMemDeduc(total)
+            setTotal(0)
+        }
+    }
+
+    const handleCheck = (id, price) => {
+        setSelectedItems((prevState) => [
+            ...prevState, 
+            {id: id, price: price}
+        ]);
+    }
+    
+    const handleCheckout = async() => {
+        try {
+            const res = await axios.post(`http://localhost:8000/api/user/process/${user._id}`, selectedItems)
+            toast.success(res.data.message)
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+            
+        } catch(e) {
+            console.log(e)
+        }
+    }
+
+    return (
+        <div className="personal-info">
+            <h4>{user.first_name} {user.last_name}'s Cart</h4>
+            <Divider />
+            <div className="main-with-side">
+                <div className="cart-container">
+                    <div className="headers">
+                        <div></div>
+                        <div className="heads">Course</div>
+                        <div className="heads">Price</div>
+                        <div className="heads">Subtotal</div>
+                    </div>
+                    <div className="cart-list">
+                        {
+                            user.cart.map((item, index) => {
+                                return (
+                                    <>
+                                        <div key={index} className="cart-item">
+                                            <div className="checkbox"><Checkbox onChange={() => {handleCheck(item.course_id._id, item.course_id.price)}} /></div>
+                                            <div className="item-info">
+                                                <div className="item-img__container">
+                                                    {
+                                                        item.course_id.images.length > 0 ? (
+                                                            <img src={item.course_id.images[0].url} alt="" />
+                                                        ) : (
+                                                            <img src="https://placehold.co/600x400" alt="" />
+                                                        )
+                                                    }
+
+                                                </div>
+                                                <div className="item-gen__info">
+                                                    {item.course_id.title}
+                                                </div>
+                                            </div>
+                                            <div className="item-price">{item.course_id.price}</div>
+                                            <div className="item-subtotal">
+                                                {
+                                                    user.membership_type == '' ? (
+                                                        item.course_id.price
+                                                    ) : (
+                                                        0
+                                                    )
+
+                                                }
+                                            </div>
+                                        </div>
+                                        < Divider />
+                                    </>
+
+                                )
+                            })
+                        }
+                    </div>
+                </div>
+                <div className="side-container">
+                    <div className="coupon-container">
+                        <h4>Apply Coupon</h4>
+                        <Divider />
+                    </div>
+                    <div className="subtotal-container">
+                        <h4>Cart Total</h4>
+                        <Divider />
+                        <div className="cart-total__container-row">
+                            <div>Membership Type:</div>
+                            <div>{user.membership_type}</div>
+                        </div>
+                        <div className="cart-total__container-row">
+                            <div>Coupon Deduction:</div>
+                            <div>$ {deduc}</div>
+                        </div>
+                        <div className="cart-total__container-row">
+                            <div>Memberhip Deduction:</div>
+                            <div>$ {memDeduc}</div>
+                        </div>
+                        <div className="cart-total__container-row">
+                            <div>Amount Total:</div>
+                            <div>$ {total}</div>
+                        </div>
+                    </div>
+                    <Button className='flex-grow whiteout-button' variant="contained" onClick={() => {handleCheckout()}}>Checkout</Button>
+                </div>
+            </div>
+        </div>
+    )
+}
 
 export default Profile

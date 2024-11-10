@@ -23,6 +23,11 @@ section {
     margin-top: 100px !important;
 }
 
+.d-flex {
+    display: flex;
+    gap:10px
+}
+
 .main-container-column  {
     /* border: 1px solid blue; */
     width: 100%;
@@ -274,7 +279,7 @@ section {
 
 .card {
     width: 99%;
-    min-height: 175px;
+    height: 175px;
     /* border:1px solid red; */
     box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.2), 1px 6px 20px 0 rgba(0, 0, 0, 0.19);
     display: flex;

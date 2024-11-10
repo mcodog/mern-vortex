@@ -129,3 +129,71 @@
 .text-field {
     width: 100% !important;
 }
+
+.personal-info .main-with-side {
+    display: grid;
+    grid-template-columns: 80% 20%;
+    /* border: 1px solid red; */
+    min-height: 500px;
+    padding: 20px;
+    padding-left: 0px;
+    gap:20px;
+}
+
+.main-with-side .cart-container {
+    /* border: 1px solid red; */
+}
+
+.main-with-side .side-container {
+    /* border:1px solid red; */
+    display: grid;
+    grid-template-rows: 40% 50% 10%;
+}
+
+.cart-container .headers {
+    display: grid;
+    grid-template-columns: 5% 75% 10% 10%;
+}
+
+.cart-item .checkbox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cart-container .cart-item {
+    display: grid;
+    grid-template-columns: 5% 75% 10% 10%;
+    height: 120px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    /* border: 1px solid red; */
+}
+
+.cart-item .item-info {
+    display: grid;
+    grid-template-columns: 25% 75%;
+}
+
+.item-info .item-img__container {
+    /* border:1px solid red; */
+    height: 120px;
+    border-radius: 10px;
+}
+
+.item-img__container img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    overflow: hidden;
+}
+
+.subtotal-container .cart-total__container-row {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    font-size: 12px;
+}
+
+.side-container .MuiButton-contained {
+    background-color: var(--primary-color) !important;
+}
