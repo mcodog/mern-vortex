@@ -3,12 +3,15 @@ import './styles/Login.css'
 import Gradient from '../components/Gradient'
 import axios from 'axios'
 import { firebaseLogin, firebaseRegister, signInWithGoogle } from '../auth/auth';
-import { createFunc } from './admin/Utils/CrudUtils'
+import { createFunc, createFuncNoToast } from './admin/Utils/CrudUtils'
+import toast from 'react-hot-toast';
 
 const Login = () => {
     const [basicInfo, setBasicInfo] = useState()
     const [isRegistering, setIsRegistering] = useState(false); // Toggle between login and register
     const [formData, setFormData] = useState({
+        first_name: '',
+        last_name: '',
         password: '',
         email: '',
     });
@@ -39,11 +42,22 @@ const Login = () => {
     const handleSubmitRegister = async (e) => {
         e.preventDefault();
         // Handle registration logic here
+        // console.log("form", formData)
+        const saveData = loginProcess()
+
+        toast.promise(saveData, {
+            loading: 'Attempting to Register...',
+            success: 'You are now registered! Logging you in now...',
+            error: 'Unsuccessful: Changes to profile are not saved.'
+        });
+    };
+
+    const loginProcess = async() => {
         await firebaseRegister(formData.email, formData.password)
-        const response = await createFunc('user', formData)
+        const response = await createFuncNoToast('user', formData)
         setBasicInfo({ id: response.data.data._id, email: response.data.data.email })
         loginAttempt()
-    };
+    }
 
 
     const handleToggleForm = () => {
@@ -54,15 +68,20 @@ const Login = () => {
         const user = await firebaseLogin(formData.email, formData.password)
         const token = await user.getIdToken();
         const res = await axios.post("http://localhost:8000/auth", { token });
-        console.log(res)
+        setTimeout(() => {
+            if(res.statusText == 'OK') {
+                window.location.href= "/"
+            }
+        }, 2000);
+
     }
 
     return (
-        <section className="main-container">
+        <section className="zerom main-container">
             <div className="background">
                 <Gradient />
             </div>
-            <div className="login-container">
+            <div className="pos0 login-container">
                 <button
                     className="return"
                     onClick={() => window.location.href = '/'}
@@ -119,8 +138,8 @@ const Login = () => {
                                         <label htmlFor="first-name">FIRST NAME</label><br />
                                         <input
                                             type="text"
-                                            id="first-name"
-                                            value={formData.firstName}
+                                            id="first_name"
+                                            value={formData.first_name}
                                             onChange={handleChange}
                                         />
                                     </div>
@@ -128,8 +147,8 @@ const Login = () => {
                                         <label htmlFor="last-name">LAST NAME</label><br />
                                         <input
                                             type="text"
-                                            id="last-name"
-                                            value={formData.lastName}
+                                            id="last_name"
+                                            value={formData.last_name}
                                             onChange={handleChange}
                                         />
                                     </div>

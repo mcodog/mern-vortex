@@ -12,7 +12,7 @@ const userSchema = mongoose.Schema({
     },
     membership_type: {
         type: String,
-        enum: ['Standard Personal Plan', 'Vortex Plus', 'Vortex Premium'],
+        enum: ['Standard Personal Plan', 'Vortex Plus', 'Vortex Premium', ''],
         required: false,
         default: ''
     },

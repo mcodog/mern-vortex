@@ -19,6 +19,7 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { FaShoppingCart } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 import Checkbox from '@mui/material/Checkbox';
 
 const Profile = () => {
@@ -92,9 +93,25 @@ const Profile = () => {
 }
 
 const UserInfo = () => {
+    const navigate = useNavigate()
     const [age, setAge] = React.useState('');
     const { isAuthenticated, user } = useAuth();
+    // const [image, setImage] = useState()
     // console.log(user)
+    const [image, setImage] = useState('');
+    const [formState, setFormState] = useState({
+        email: '',
+        first_name: '',
+        last_name: '',
+        gender: '',
+        birthday: dayjs("2024-11-04T16:00:00.000Z"),
+        language: '',
+        country: '',
+        interests: [],
+        avatar: [],
+        membership_type: '',
+    });
+
     const [categoryOptions, setCategoryOptions] = useState()
     const fetchCat = async () => {
         try {
@@ -110,19 +127,29 @@ const UserInfo = () => {
         fetchCat()
     }, [])
 
-    const [formState, setFormState] = useState({
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        gender: user.gender,
-        birthday: dayjs("2024-11-04T16:00:00.000Z"),
-        language: user.language,
-        country: user.country,
-        interests: user.interests,
-        avatar: user.avatar,
-        membership_type: user.membership_type
-    });
-    const [image, setImage] = useState(user.avatar[0].url)
+
+    useEffect(() => {
+        if (user) {
+            setFormState({
+                email: user.email,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                gender: user.gender,
+                birthday: dayjs(user.birthday || "2024-11-04T16:00:00.000Z"),
+                language: user.language,
+                country: user.country,
+                interests: user.interests,
+                avatar: user.avatar,
+                membership_type: user.membership_type,
+            });
+
+            const initialImage = user.avatar?.length > 0
+                ? user.avatar[0].url
+                : `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}`;
+            setImage(initialImage);
+        }
+    }, [user]);
+
 
     const fileInputRef = useRef(null);
 
@@ -250,6 +277,8 @@ const UserInfo = () => {
             const res = await saveProfilePromise
             console.log(res)
             setImage(res.data.data.avatar[0].url)
+            // window.location.reload();
+            window.location.href = window.location.href;
         } catch (e) {
             console.log(e)
         }
@@ -393,20 +422,20 @@ const Cart = () => {
 
     const handleCheck = (id, price) => {
         setSelectedItems((prevState) => [
-            ...prevState, 
-            {id: id, price: price}
+            ...prevState,
+            { id: id, price: price }
         ]);
     }
-    
-    const handleCheckout = async() => {
+
+    const handleCheckout = async () => {
         try {
             const res = await axios.post(`http://localhost:8000/api/user/process/${user._id}`, selectedItems)
             toast.success(res.data.message)
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
-            
-        } catch(e) {
+
+        } catch (e) {
             console.log(e)
         }
     }
@@ -429,7 +458,7 @@ const Cart = () => {
                                 return (
                                     <>
                                         <div key={index} className="cart-item">
-                                            <div className="checkbox"><Checkbox onChange={() => {handleCheck(item.course_id._id, item.course_id.price)}} /></div>
+                                            <div className="checkbox"><Checkbox onChange={() => { handleCheck(item.course_id._id, item.course_id.price) }} /></div>
                                             <div className="item-info">
                                                 <div className="item-img__container">
                                                     {
@@ -490,7 +519,7 @@ const Cart = () => {
                             <div>$ {total}</div>
                         </div>
                     </div>
-                    <Button className='flex-grow whiteout-button' variant="contained" onClick={() => {handleCheckout()}}>Checkout</Button>
+                    <Button className='flex-grow whiteout-button' variant="contained" onClick={() => { handleCheckout() }}>Checkout</Button>
                 </div>
             </div>
         </div>
