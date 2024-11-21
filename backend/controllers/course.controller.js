@@ -200,4 +200,115 @@ export const addCourseContent = async (req, res) => {
       });
     }
   };
-  
+
+  export const createReview = async (req, res) => {
+    try {
+        const { courseId, userId, rating, review } = req.body;
+
+        // Validate courseId and userId
+        if (!mongoose.Types.ObjectId.isValid(courseId)) {
+            return res.status(400).json({ success: false, message: 'Invalid course ID' });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: 'Invalid user ID' });
+        }
+
+        // Validate review data
+        if (!rating || !review) {
+            return res.status(400).json({ success: false, message: 'Rating and review are required' });
+        }
+
+        // Find the course by ID
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Course not found' });
+        }
+
+        const existingReview = course.reviews.find(
+            (rev) => rev.userId.toString() === userId
+        );
+
+        if (existingReview) {
+            return res.status(400).json({
+                success: false,
+                message: 'User has already reviewed this course',
+            });
+        }
+
+        // Add the review to the course's reviews array
+        const newReview = {
+            userId,
+            rating,
+            review,
+        };
+
+        course.reviews.push(newReview);
+
+        // Save the updated course document
+        await course.save();
+
+        return res.status(201).json({
+            success: true,
+            message: 'Review added successfully',
+            data: newReview,
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const updateReview = async (req, res) => {
+    try {
+        const { courseId, userId, rating, review } = req.body;
+
+        // Validate courseId and userId
+        if (!mongoose.Types.ObjectId.isValid(courseId)) {
+            return res.status(400).json({ success: false, message: 'Invalid course ID' });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: 'Invalid user ID' });
+        }
+
+        // Validate review data
+        if (!rating || !review) {
+            return res.status(400).json({ success: false, message: 'Rating and review are required' });
+        }
+
+        // Find the course by ID
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Course not found' });
+        }
+
+        // Find the review by userId
+        const existingReview = course.reviews.find(
+            (rev) => rev.userId.toString() === userId
+        );
+
+        if (!existingReview) {
+            return res.status(404).json({
+                success: false,
+                message: 'Review not found for this user',
+            });
+        }
+
+        // Update the review
+        existingReview.rating = rating;
+        existingReview.review = review;
+
+        // Save the updated course document
+        await course.save();
+
+        return res.status(200).json({
+            success: true,
+            message: 'Review updated successfully',
+            data: existingReview,
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};

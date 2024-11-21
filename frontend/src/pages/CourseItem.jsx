@@ -18,12 +18,20 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import toast from 'react-hot-toast';
 
+import Box from '@mui/joy/Box';
+import IconButton from '@mui/joy/IconButton';
+import Textarea from '@mui/joy/Textarea';
+import Typography from '@mui/joy/Typography';
+
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const CourseDetails = () => {
+    const { isAuthenticated, user } = useAuth();
     const [open, setOpen] = React.useState(false);
+    const [text, setText] = React.useState('');
+    const addEmoji = (emoji) => () => setText(`${text}${emoji}`);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -35,7 +43,7 @@ const CourseDetails = () => {
 
     const { id } = useParams();
     const [course, setCourse] = useState()
-    const { isAuthenticated, user } = useAuth();
+    const [userHas, setUserHas] = useState(false)
     const retrieveCourse = async () => {
         try {
             const res = await axios.get(`http://localhost:8000/api/course/${id}`)
@@ -52,7 +60,24 @@ const CourseDetails = () => {
 
 
     useEffect(() => {
-        console.log(course)
+        if (isAuthenticated) {
+            if (course) {
+                
+                if (user.checkout.length > 0) {
+                    user.checkout.map((order) => {
+                        if (order.order) {
+                            order.order.course.map((item) => {
+                                if (course._id == item.course_id) {
+                                    setUserHas(true)
+                                }
+                            })
+                        }
+                    })
+                }
+                // console.log()
+                console.log(course._id)
+            }
+        }
     }, [course])
 
     const addToCart = async () => {
@@ -62,6 +87,26 @@ const CourseDetails = () => {
             toast.success(res.data.message)
         } catch (e) {
             console.log(e)
+        }
+    }
+
+    const addReview = async () => {
+        try {
+            const formSubmit = {
+                courseId: id,
+                userId: user._id,
+                rating: "5",
+                review: text,
+            }
+            const res = await axios.post(`http://localhost:8000/api/course/review`, formSubmit)
+            toast.success("Review Posted!")
+            setTimeout(() => {
+                    window.location.href= "/"
+                
+            }, 1000);
+            // console.log(res.response.data)
+        } catch (e) {
+            toast.error(e.response.data.message)
         }
     }
     return (
@@ -171,7 +216,68 @@ const CourseDetails = () => {
                                 234,231 students
                             </div>
                         </div>
+                        <div>
 
+                            {
+                                userHas && (
+                                    <div>
+                                        <h2>Write a Review</h2>
+                                        <Textarea
+                                            placeholder="Type in here…"
+                                            value={text}
+                                            onChange={(event) => setText(event.target.value)}
+                                            minRows={2}
+                                            maxRows={4}
+                                            startDecorator={
+                                                <Box sx={{ display: 'flex', gap: 0.5, flex: 1 }}>
+                                                    <IconButton variant="outlined" color="neutral" onClick={addEmoji('👍')}>
+                                                        👍
+                                                    </IconButton>
+                                                    <IconButton variant="outlined" color="neutral" onClick={addEmoji('🏖')}>
+                                                        🏖
+                                                    </IconButton>
+                                                    <IconButton variant="outlined" color="neutral" onClick={addEmoji('😍')}>
+                                                        😍
+                                                    </IconButton>
+                                                    <Button variant="outlined" color="neutral" sx={{ ml: 'auto' }}>
+                                                        See all
+                                                    </Button>
+                                                </Box>
+                                            }
+                                            endDecorator={
+                                                <Typography level="body-xs" sx={{ ml: 'auto' }}>
+                                                    {text.length} character(s)
+                                                </Typography>
+                                            }
+                                            sx={{ minWidth: 300 }}
+                                        />
+                                        <button onClick={() => { addReview() }}>Submit</button>
+                                    </div>
+                                )
+
+                            }
+
+                        </div>
+                        <div className='reviews-list'>
+                            {
+                                course.reviews ? (
+                                    course.reviews.map((item) => {
+                                        console.log(item)
+                                        return (
+                                            <div className='review-tab'>
+                                                {item.rating} - {item.review} by {item.userId}
+                                                <div className="review-control">
+                                                    <button>Edit</button>
+                                                    <button>Delete</button>
+                                                </div>
+                                            </div>
+                                        )
+                                    })
+                                ) : (
+                                    <div>No Reviews Yet.</div>
+                                )
+                            }
+                        </div>
                         {/* <div className="boxed-container"></div> */}
                     </div>
                 </div>

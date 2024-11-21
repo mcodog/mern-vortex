@@ -35,6 +35,7 @@ const Login = () => {
             console.log("Logging in...")
             window.location.href= "/"
         } catch (e) {
+            toast.error("Error: Please check your credentials.")
             console.log(e)
         }
     };

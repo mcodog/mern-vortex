@@ -15,7 +15,7 @@
 
 # MP3 Review Ratings 20pts
 
-- [ ] users who availed of the product/service can write a review and rate the product service 10pts
+- [x] users who availed of the product/service can write a review and rate the product service 10pts
 - [ ] users can update their own review rating. 5pts
 - [ ] admin can delete a review 5pts. 
 
