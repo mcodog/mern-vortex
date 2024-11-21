@@ -23,15 +23,21 @@ import IconButton from '@mui/joy/IconButton';
 import Textarea from '@mui/joy/Textarea';
 import Typography from '@mui/joy/Typography';
 
+import { FaStar } from "react-icons/fa";
+import { FaStarHalfAlt } from "react-icons/fa";
+import { FaRegStar } from "react-icons/fa";
+
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const CourseDetails = () => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user, isAdmin } = useAuth();
     const [open, setOpen] = React.useState(false);
     const [text, setText] = React.useState('');
     const addEmoji = (emoji) => () => setText(`${text}${emoji}`);
+    const [rating, setRating] = useState(0);
+    const [hover, setHover] = useState(0);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -62,7 +68,6 @@ const CourseDetails = () => {
     useEffect(() => {
         if (isAuthenticated) {
             if (course) {
-                
                 if (user.checkout.length > 0) {
                     user.checkout.map((order) => {
                         if (order.order) {
@@ -95,20 +100,68 @@ const CourseDetails = () => {
             const formSubmit = {
                 courseId: id,
                 userId: user._id,
-                rating: "5",
+                rating: rating,
                 review: text,
             }
             const res = await axios.post(`http://localhost:8000/api/course/review`, formSubmit)
             toast.success("Review Posted!")
             setTimeout(() => {
-                    window.location.href= "/"
-                
+                window.location.reload()
+
             }, 1000);
             // console.log(res.response.data)
         } catch (e) {
             toast.error(e.response.data.message)
         }
     }
+
+    const updateReview = async () => {
+        try {
+            const updateForm = {
+                userId: user._id,
+                rating: rating,
+                review: text,
+            }
+            console.log(updateForm)
+            const res = await axios.put(`http://localhost:8000/api/course/review/${id}`, updateForm)
+            console.log(res)
+            toast.success("Review Updated!")
+            setTimeout(() => {
+                window.location.reload()
+            }, 1000);
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    const deleteReview = async (userId) => {
+        // const deleteForm = {
+        //     userId: userId
+        // }
+        // console.log(deleteForm)
+        try {
+            const res = await axios.delete(`http://localhost:8000/api/course/review/${id}/${userId}`)
+            toast.success("Review Deleted!")
+            setTimeout(() => {
+                window.location.reload()
+            }, 1000);
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    useEffect(() => {
+        if (course) {
+            course.reviews.map((review, index) => {
+                if (review.userId == user?._id) {
+                    setRating(course.reviews[index].rating)
+                    setText(course.reviews[index].review)
+                    console.log(course.reviews[index].review)
+                }
+            })
+        }
+    }, [course])
+
     return (
         <section>
             {course ? (
@@ -217,11 +270,24 @@ const CourseDetails = () => {
                             </div>
                         </div>
                         <div>
-
                             {
                                 userHas && (
                                     <div>
                                         <h2>Write a Review</h2>
+                                        <div className="rating-control">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <FaStar
+                                                    key={star}
+                                                    className="star"
+                                                    size={24}
+                                                    onMouseEnter={() => setHover(star)}
+                                                    onMouseLeave={() => setHover(0)}
+                                                    onClick={() => setRating(star)}
+                                                    color={star <= (hover || rating) ? "#ffc107" : "#e4e5e9"}
+                                                    style={{ cursor: "pointer" }}
+                                                />
+                                            ))}
+                                        </div>
                                         <Textarea
                                             placeholder="Type in here…"
                                             value={text}
@@ -246,31 +312,45 @@ const CourseDetails = () => {
                                             }
                                             endDecorator={
                                                 <Typography level="body-xs" sx={{ ml: 'auto' }}>
-                                                    {text.length} character(s)
+                                                    {
+                                                        text ? (
+                                                            <>{text.length} character(s)</>
+                                                        ) : (
+                                                            null
+                                                        )
+                                                    }
+
                                                 </Typography>
                                             }
                                             sx={{ minWidth: 300 }}
                                         />
                                         <button onClick={() => { addReview() }}>Submit</button>
+                                        <button onClick={() => { updateReview() }}>Update</button>
                                     </div>
                                 )
-
                             }
-
                         </div>
                         <div className='reviews-list'>
                             {
                                 course.reviews ? (
                                     course.reviews.map((item) => {
-                                        console.log(item)
                                         return (
-                                            <div className='review-tab'>
-                                                {item.rating} - {item.review} by {item.userId}
-                                                <div className="review-control">
-                                                    <button>Edit</button>
-                                                    <button>Delete</button>
+                                            item.userId == user?._id ? (
+                                                null
+                                            ) : (
+                                                // console.log(item)
+                                                <div className='review-tab'>
+                                                    {item.rating} - {item.review} by {item.userId}
+                                                    <div className="review-control">
+                                                        {
+                                                            isAdmin && (
+                                                                <button onClick={() => {deleteReview(item.userId)}}>Delete</button>
+                                                            )
+                                                        }
+
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            )
                                         )
                                     })
                                 ) : (

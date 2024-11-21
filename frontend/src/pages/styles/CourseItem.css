@@ -311,3 +311,8 @@ section {
     border-radius: 10px;
     padding:20px;
 }
+
+.rating-control {
+    /* border:1px solid red; */
+    font-size: 26px;
+}

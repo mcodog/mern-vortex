@@ -261,11 +261,12 @@ export const addCourseContent = async (req, res) => {
 
 export const updateReview = async (req, res) => {
     try {
-        const { courseId, userId, rating, review } = req.body;
-
-        // Validate courseId and userId
+        const { userId, rating, review } = req.body;
+        const { id } = req.params
+        const courseId = id
+        
         if (!mongoose.Types.ObjectId.isValid(courseId)) {
-            return res.status(400).json({ success: false, message: 'Invalid course ID' });
+            return res.status(400).json({ success: false, message: 'Invalid course IDdsads' });
         }
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -312,3 +313,57 @@ export const updateReview = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 };
+
+export const deleteReview = async (req, res) => {
+    try {
+        // const { userId } = req.body;
+        const { id, cid } = req.params
+        const courseId = id
+        const userId = cid
+
+        console.log(userId)
+
+        // Validate courseId and userId
+        if (!mongoose.Types.ObjectId.isValid(courseId)) {
+            return res.status(400).json({ success: false, message: 'Invalid course ID' });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: 'Invalid user ID' });
+        }
+
+        // Find the course by ID
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Course not found' });
+        }
+
+        // Find the review by userId
+        const reviewIndex = course.reviews.findIndex(
+            (rev) => rev.userId.toString() === userId
+        );
+
+        if (reviewIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                message: 'Review not found for this user',
+            });
+        }
+
+        // Remove the review from the reviews array
+        course.reviews.splice(reviewIndex, 1);
+
+        // Save the updated course document
+        await course.save();
+
+        return res.status(200).json({
+            success: true,
+            message: 'Review deleted successfully',
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export default deleteReview;
