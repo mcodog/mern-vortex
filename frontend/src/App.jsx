@@ -19,6 +19,8 @@ import { AuthProvider } from './auth/AuthContext';
 import ProtectedRoute from './auth/ProtectedRoute';
 import Profile from './pages/Profile'
 
+import LeanerStatus from './pages/admin/LeanerStatus'
+
 function App() {
   axios.defaults.withCredentials = true;
 
@@ -43,6 +45,7 @@ function App() {
           <Route path="/admin/categories" element={<CategoryCrud />} />
           <Route path="/admin/users" element={<UsersCrud />} />
           <Route path="/admin/instructors" element={<InstructorCrud />} />
+          <Route path="/admin/learnerStatus/:id" element={<LeanerStatus />} />
         </Route>
       </Routes>
     </AuthProvider>

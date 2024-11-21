@@ -1,0 +1,46 @@
+.learnernstat-container {
+    /* border:1px solid red; */
+    height: 99%;
+    width: 100%;
+    padding:20px;
+    display: grid;
+    grid-template-rows: 10% 90%;
+}
+
+.user-info {
+    /* border:1px solid red; */
+}
+
+.course-list {
+    /* border:1px solid red; */
+    display: flex;
+    flex-wrap: wrap;
+    gap:20px;
+    overflow-y: scroll;
+    padding: 10px;
+}
+
+.course-list .list-item {
+    /* border:1px solid red; */
+    position: relative;
+    border-radius: 8px;
+    height: 250px;
+    width: 320px;
+    box-shadow: 0px 0px 7px 5px rgba(0,0,0,0.15);
+    padding:10px;
+}
+
+.list-item .title {
+    font-size: 19px;
+}
+
+.list-item .list-item__controls {
+    position: absolute;
+    bottom: 10px;
+    display: flex;
+    gap:10px;
+}
+
+.list-item__controls button {
+    padding: 5px 7px;
+}

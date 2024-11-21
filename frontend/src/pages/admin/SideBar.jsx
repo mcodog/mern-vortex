@@ -22,6 +22,7 @@ const SideBar = () => {
     else if (currentPath === '/admin/categories') setCurrentPage('Categories');
     else if (currentPath === '/admin/users') setCurrentPage('Users');
     else if (currentPath === '/admin/instructors') setCurrentPage('Instructors');
+    else if (currentPath.startsWith('/admin/learnerStatus/')) setCurrentPage('learnerStatus');
   }, [location]);
 
   return (
@@ -46,6 +47,9 @@ const SideBar = () => {
       </Link>
       <Link to="/admin/courses" className={`nav-slot ${currentPage === "Courses" ? 'active' : ""}`}>
         <GiWhiteBook /> &nbsp; Courses
+      </Link>
+      <Link to="/admin/learnerStatus/673e666ef7a0cc21abcea00b" className={`nav-slot ${currentPage === "learnerStatus" ? 'active' : ""}`}>
+        <GiWhiteBook /> &nbsp; Learners' Status
       </Link>
       <Divider />
       <h5 className='padding-left light-pale'>Common CRUD</h5>

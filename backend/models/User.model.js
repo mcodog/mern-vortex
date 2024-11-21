@@ -95,7 +95,7 @@ const userSchema = mongoose.Schema({
                         },
                         status: { 
                             type: String, 
-                            enum: ['Ongoing', 'Completed', 'Cancelled'], 
+                            enum: ['Ongoing', 'Completed', 'Cancelled', 'Terminated', 'Paused'], 
                             default: 'Ongoing' 
                         },
                     }

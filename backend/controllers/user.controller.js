@@ -6,8 +6,8 @@ import Course from "../models/Course.model.js";
 export const getUser = async (request, response) => {
     try {
         const user = await User.find({}).populate({
-            path: 'cart.course_id', 
-            model: 'Course' 
+            path: 'cart.course_id',
+            model: 'Course'
         }).exec();
         response.status(200).json({ success: true, message: "Users Retrieved.", data: user });
     } catch (error) {
@@ -19,9 +19,9 @@ export const getUser = async (request, response) => {
 export const getOneUser = async (request, response) => {
     try {
         const { id } = request.params;
-        const user = await User.find({}).populate({
-            path: 'cart.course_id', 
-            model: 'Course' 
+        const user = await User.findById(id).populate({
+            path: 'cart.course_id',
+            model: 'Course'
         }).exec();
         response.status(200).json({ success: true, message: "Users Retrieved.", data: user });
     } catch (error) {
@@ -55,10 +55,10 @@ export const updateUser = async (request, response) => {
     // console.log('before', request.body.avatar)
     if (Array.isArray(request.body.avatar)) {
         if (typeof request.body.avatar[0] === 'string') {
-            const userImage = await User.findById(id); 
+            const userImage = await User.findById(id);
 
             if (userImage && userImage.avatar.length > 0) {
-              
+
                 try {
                     await cloudinary.v2.uploader.destroy(userImage.avatar[0].public_id);
                 } catch (error) {
@@ -137,8 +137,8 @@ export const deleteUser = async (request, response) => {
     }
 }
 
-export const addToCart = async(req, res) => {
-    try { 
+export const addToCart = async (req, res) => {
+    try {
         const { userId } = req.params
         const { course_id } = req.body
 
@@ -156,15 +156,15 @@ export const addToCart = async(req, res) => {
         const existingCartItem = user.cart.find(item => item.course_id.toString() === course_id);
 
         if (existingCartItem) {
-            return res.status(200).send({ success:false, message: "This Item is already added to cart." })
+            return res.status(200).send({ success: false, message: "This Item is already added to cart." })
         } else {
             user.cart.push({ course_id })
         }
 
         await user.save()
         return res.status(200).send({ success: true, message: "Successful: Course has been added to Cart." })
-    } catch(error) {
-        res.status(500).json({ success:false, message: "Server Error", error })
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error", error })
     }
 }
 
@@ -204,5 +204,47 @@ export const processCheckout = async (req, res) => {
         res.status(200).json({ success: true, message: 'Checkout processed successfully', order });
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error: Process Checkout", error });
+    }
+};
+
+export const updateCourseStatus = async (req, res) => {
+    const { userId, orderId, courseId, newStatus } = req.body; // Expecting userId, orderId, courseId, and newStatus to be passed
+    console.log(req.body)
+    try {
+        // Find user by ID
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the order that matches the provided orderId
+        const order = user.checkout.find(order => order._id.toString() === orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Find the specific course in the order by courseId
+        console.log(courseId)
+        console.log(order.order.course)
+        const course = user.checkout
+            .find(order => order.order.course.some(course => course._id.toString() == courseId))
+            ?.order.course.find(course => course._id.toString() == courseId);
+
+        if (!course) {
+            return res.status(404).json({ message: 'Course not found in this order' });
+        }
+
+        // Update the status of the course
+        course.status = newStatus;
+
+        // Save the updated user document
+        await user.save();
+
+        return res.status(200).json({ message: 'Course status updated successfully', course });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
     }
 };

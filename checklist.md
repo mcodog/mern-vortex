@@ -11,7 +11,7 @@
 - [x] username and password authentication 5pts 
 - [x] user profile update with photo upload. 5pts 
 - [x] username and password firebase authentication 10pts
-- [ ] user profile update with photo upload using firebase storage. 10pts
+- [x] user profile update with photo upload using firebase storage. 10pts
 
 # MP3 Review Ratings 20pts
 
@@ -21,8 +21,8 @@
 
 # TERM TEST LAB 30pts
 
-- [ ] completed transaction. 10pts
-- [ ] admin updates the status of the transaction. 5pts 
+- [x] completed transaction. 10pts
+- [x] admin updates the status of the transaction. 5pts 
 - [ ] email the customer of the updated transaction details. the email contains the list of products/services, their subtotal and grand total. 5pts
 - [ ] use FCM push notifications to inform the customer of the updated transaction. store the FCM registration token on the database 10pts
 
@@ -34,9 +34,9 @@
 
 # UNIT 2
 
-- [ ] user interface design css 10pts
-- [ ] user interface design css and bootstrap components 15pts
-- [ ] user interface design css and Material UI (MUI) components 20pts
+- [x] user interface design css 10pts
+- [x] user interface design css and bootstrap components 15pts
+- [x] user interface design css and Material UI (MUI) components 20pts
 
 # QUIZ 1 Product Filter 15pts
 

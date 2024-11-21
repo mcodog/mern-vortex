@@ -20,7 +20,11 @@ import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { FaShoppingCart } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
+import Chip from '@mui/material/Chip';
 import Checkbox from '@mui/material/Checkbox';
+import { fetchDataN } from './admin/Utils/CrudUtils';
+import Fab from '@mui/material/Fab';
+import NavigationIcon from '@mui/icons-material/Navigation';
 
 const Profile = () => {
     const [currentPage, setCurrentPage] = useState('User Information')
@@ -82,8 +86,10 @@ const Profile = () => {
                         <UserInfo />
                     ) : currentPage == 'Cart' ? (
                         <Cart />
+                    ) : currentPage == 'Enrolled Courses' ? (
+                        <Courses />
                     ) : (
-                        <div></div>
+                        null
                     )
                 }
 
@@ -413,6 +419,7 @@ const Cart = () => {
         selectedItems.forEach((item) => {
             total += item.price;
         });
+
         setTotal(total);
         if (user.membership_type != '') {
             setMemDeduc(total)
@@ -520,6 +527,166 @@ const Cart = () => {
                         </div>
                     </div>
                     <Button className='flex-grow whiteout-button' variant="contained" onClick={() => { handleCheckout() }}>Checkout</Button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+const Courses = () => {
+    const { isAuthenticated, user } = useAuth();
+    const [courseList, setCourseList] = useState([])
+    console.log(user)
+
+    const retrieveCourses = async () => {
+        try {
+            setCourseList([])
+            for (const orders of user.checkout) {
+                for (const course of orders.order.course) {
+                    console.log(course.course_id);
+                    const res = await fetchDataN('course', course.course_id);
+                    if (res.data.data.images.length > 0) {
+                        const newEntry = {
+                            'title': res.data.data.title,
+                            'image_url': res.data.data.images[0].url,
+                            'order_id': course._id,
+                            'status': course.status
+                        }
+                        setCourseList((prevState) => [...prevState, newEntry])
+                    } else {
+                        const newEntry = {
+                            'title': res.data.data.title,
+                            'image_url': 'https://placehold.co/600x400',
+                            'order_id': course._id,
+                            'status': course.status
+                        }
+                        setCourseList((prevState) => [...prevState, newEntry])
+                    }
+
+                }
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    useEffect(() => {
+        console.log(courseList)
+    }, [courseList])
+
+    useEffect(() => {
+        retrieveCourses()
+    }, [])
+
+
+    return (
+        <div className="personal-info">
+            <h4>{user.first_name} {user.last_name}'s Courses</h4>
+            <Divider />
+            <div className="main-with-side">
+                <div className="cart-container">
+                    <div className="headers alt">
+                        
+                        <div className="heads">Course</div>
+                        <div className="heads">Status</div>
+                        <div className="heads">Controls</div>
+                    </div>
+                    <div className="cart-list">
+                        {
+                            courseList ? (
+                                courseList.map((course) => {
+                                    return (
+                                        <div className="cart-item alt">
+                                            
+                                            <div className="item-info">
+                                                <div className="item-img__container">
+                                                    <img src={course.image_url} alt="" />
+                                                </div>
+                                                <div className="item-gen__info">
+                                                    {course.title}
+                                                </div>
+                                            </div>
+                                            <div className="item-status">
+                                                <Chip label={course.status} />
+                                                
+                                            </div>
+                                            <div className="item-control">
+                                                <button>View</button>
+                                                <button>Cancel</button>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            ) : (
+                                null
+                            )
+                        }
+                         {/* {
+                            user.cart.map((item, index) => {
+                                return (
+                                    <>
+                                        <div key={index} className="cart-item">
+                                            <div className="checkbox"><Checkbox onChange={() => { handleCheck(item.course_id._id, item.course_id.price) }} /></div>
+                                            <div className="item-info">
+                                                <div className="item-img__container">
+                                                    {
+                                                        item.course_id.images.length > 0 ? (
+                                                            <img src={item.course_id.images[0].url} alt="" />
+                                                        ) : (
+                                                            <img src="https://placehold.co/600x400" alt="" />
+                                                        )
+                                                    }
+                                                </div>
+                                                <div className="item-gen__info">
+                                                    {item.course_id.title}
+                                                </div>
+                                            </div>
+                                            <div className="item-price">{item.course_id.price}</div>
+                                            <div className="item-subtotal">
+                                                {
+                                                    user.membership_type == '' ? (
+                                                        item.course_id.price
+                                                    ) : (
+                                                        0
+                                                    )
+
+                                                }
+                                            </div>
+                                        </div>
+                                        < Divider />
+                                    </>
+
+                                )
+                            })
+                        } */}
+                    </div>
+                </div>
+                <div className="side-container">
+                    {/* <div className="coupon-container">
+                        <h4>Apply Coupon</h4>
+                        <Divider />
+                    </div>
+                    <div className="subtotal-container">
+                        <h4>Cart Total</h4>
+                        <Divider />
+                        <div className="cart-total__container-row">
+                            <div>Membership Type:</div>
+                            <div></div>
+                        </div>
+                        <div className="cart-total__container-row">
+                            <div>Coupon Deduction:</div>
+                            <div></div>
+                        </div>
+                        <div className="cart-total__container-row">
+                            <div>Memberhip Deduction:</div>
+                            <div></div>
+                        </div>
+                        <div className="cart-total__container-row">
+                            <div>Amount Total:</div>
+                            <div></div>
+                        </div>
+                    </div>
+                    <Button className='flex-grow whiteout-button' variant="contained">Checkout</Button> */}
                 </div>
             </div>
         </div>

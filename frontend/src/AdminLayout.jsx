@@ -14,6 +14,7 @@ const AdminLayout = () => {
     else if (currentPath === '/admin/categories') setCurrentPage('Categories');
     else if (currentPath === '/admin/users') setCurrentPage('Users');
     else if (currentPath === '/admin/instructors') setCurrentPage('Instructors');
+    else if (currentPath.startsWith('/admin/learnerStatus/')) setCurrentPage('Learner Status');
   }, [location]);
 
   return (

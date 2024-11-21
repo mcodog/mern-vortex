@@ -155,6 +155,11 @@
     grid-template-columns: 5% 75% 10% 10%;
 }
 
+.cart-container .headers.alt {
+    display: grid;
+    grid-template-columns:  70% 10% 20%;
+}
+
 .cart-item .checkbox {
     display: flex;
     flex-direction: column;
@@ -168,6 +173,25 @@
     margin-bottom: 10px;
     margin-top: 10px;
     /* border: 1px solid red; */
+}
+
+.cart-container .cart-item.alt {
+    display: grid;
+    grid-template-columns: 70% 10% 29%;
+    height: 120px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    /* border: 1px solid red; */
+}
+
+.cart-item .item-control {
+    display: flex;
+    gap:5px;
+}
+
+.item-control button {
+    height: 50px;
+    padding: 5px 10px;
 }
 
 .cart-item .item-info {
