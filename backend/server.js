@@ -11,6 +11,8 @@ import courseRoute from './routes/course.route.js'
 import expertiseRoute from './routes/expertise.route.js'
 import loginRoute from './routes/Auth/login.route.js'
 
+import User from './models/User.model.js';
+
 import cloudinary from 'cloudinary'
 import Multer from 'multer'
 
@@ -33,6 +35,16 @@ app.use('/api/user', UserRoute);
 app.use('/api/instructor', instructorRoute);
 app.use('/api/course', courseRoute);
 app.use('/api/expertise', expertiseRoute);
+
+app.get('/api/sales', async (req, res) => {
+    const { startDate, endDate } = req.query;
+
+    const salesData = await Sales.find({
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    });
+
+    res.json(salesData);
+});
 
 app.use('/auth', loginRoute)
 
@@ -71,5 +83,47 @@ app.post("/upload", upload.single("my_file"), async (req, res) => {
         res.send({
         message: error.message,
         });
+    }
+});
+
+app.get('/sales-chart', async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+
+        // Validate dates
+        if (!startDate || !endDate) {
+            return res.status(400).json({ message: "Start and end dates are required." });
+        }
+
+        // Convert to Date objects
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        // Filter checkouts based on the date range
+        const salesData = await User.aggregate([
+            { $unwind: "$checkout" },
+            {
+                $match: {
+                    "checkout.order.datePlaced": { $gte: start, $lte: end }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$checkout.order.datePlaced" },
+                        month: { $month: "$checkout.order.datePlaced" },
+                        day: { $dayOfMonth: "$checkout.order.datePlaced" }
+                    },
+                    totalSales: { $sum: "$checkout.order.total_cost" }
+                }
+            },
+            {
+                $sort: { "_id": 1 } // Sort by date
+            }
+        ]);
+
+        res.status(200).json(salesData);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });

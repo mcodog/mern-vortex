@@ -450,6 +450,12 @@
     will-change: transform;
 }
 
+.analytics-control {
+    display: flex;
+    flex-direction: column;
+    gap:10px;
+}
+
 .dual-rows {
     width: 100%;
     display: flex;
@@ -458,4 +464,13 @@
     max-height: 70%;
     /* border:1px solid red; */
     /* overflow: hidden;d */
+}
+
+.chart-container  {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap:20px;
+    /* border:1px solid red; */
+    height: 100%;
+    width: 80%;
 }

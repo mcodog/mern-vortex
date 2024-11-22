@@ -27,6 +27,9 @@ import { FaStar } from "react-icons/fa";
 import { FaStarHalfAlt } from "react-icons/fa";
 import { FaRegStar } from "react-icons/fa";
 
+import { Filter } from 'bad-words';
+
+
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -38,6 +41,16 @@ const CourseDetails = () => {
     const addEmoji = (emoji) => () => setText(`${text}${emoji}`);
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
+    const [filteredReview, setFilteredReview] = useState('');
+    const filter = new Filter();
+
+    const handleInputChange = (e) => {
+        setText(e.target.value);
+
+        // Filter bad words in real-time
+        const cleanReview = filter.clean(e.target.value);
+        setFilteredReview(cleanReview);
+    };
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -97,20 +110,23 @@ const CourseDetails = () => {
 
     const addReview = async () => {
         try {
+            
             const formSubmit = {
                 courseId: id,
                 userId: user._id,
                 rating: rating,
-                review: text,
+                review: filteredReview,
             }
+            
             const res = await axios.post(`http://localhost:8000/api/course/review`, formSubmit)
             toast.success("Review Posted!")
             setTimeout(() => {
                 window.location.reload()
 
             }, 1000);
-            // console.log(res.response.data)
+            console.log(res.response.data)
         } catch (e) {
+            console.log(e)
             toast.error(e.response.data.message)
         }
     }
@@ -291,9 +307,10 @@ const CourseDetails = () => {
                                         <Textarea
                                             placeholder="Type in here…"
                                             value={text}
-                                            onChange={(event) => setText(event.target.value)}
+                                            // onChange={(event) => setText(event.target.value)}
                                             minRows={2}
                                             maxRows={4}
+                                            onChange={handleInputChange}
                                             startDecorator={
                                                 <Box sx={{ display: 'flex', gap: 0.5, flex: 1 }}>
                                                     <IconButton variant="outlined" color="neutral" onClick={addEmoji('👍')}>

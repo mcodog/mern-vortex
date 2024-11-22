@@ -9,7 +9,8 @@ import { SiBookstack } from "react-icons/si";
 import { Link, useLocation } from 'react-router-dom'
 
 import Divider from '@mui/material/Divider';
-
+import { MdPersonSearch } from "react-icons/md";
+import { MdOutlineAnalytics } from "react-icons/md";
 
 const SideBar = () => {
   const [currentPage, setCurrentPage] = useState('');
@@ -22,6 +23,7 @@ const SideBar = () => {
     else if (currentPath === '/admin/categories') setCurrentPage('Categories');
     else if (currentPath === '/admin/users') setCurrentPage('Users');
     else if (currentPath === '/admin/instructors') setCurrentPage('Instructors');
+    else if (currentPath === '/admin/analytics') setCurrentPage('analytics');
     else if (currentPath.startsWith('/admin/learnerStatus/')) setCurrentPage('learnerStatus');
   }, [location]);
 
@@ -49,7 +51,12 @@ const SideBar = () => {
         <GiWhiteBook /> &nbsp; Courses
       </Link>
       <Link to="/admin/learnerStatus/673e666ef7a0cc21abcea00b" className={`nav-slot ${currentPage === "learnerStatus" ? 'active' : ""}`}>
-        <GiWhiteBook /> &nbsp; Learners' Status
+        <MdPersonSearch /> &nbsp; Learners' Status
+      </Link>
+      <Divider />
+      <h5 className='padding-left light-pale'>Data and Statistics</h5>
+      <Link to="/admin/analytics" className={`nav-slot ${currentPage === "analytics" ? 'active' : ""}`}>
+        <MdOutlineAnalytics /> &nbsp; Analytics
       </Link>
       <Divider />
       <h5 className='padding-left light-pale'>Common CRUD</h5>

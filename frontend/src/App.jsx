@@ -18,6 +18,7 @@ import axios from 'axios'
 import { AuthProvider } from './auth/AuthContext';
 import ProtectedRoute from './auth/ProtectedRoute';
 import Profile from './pages/Profile'
+import Analytics from './pages/admin/Analytics'
 
 import LeanerStatus from './pages/admin/LeanerStatus'
 
@@ -45,6 +46,7 @@ function App() {
           <Route path="/admin/categories" element={<CategoryCrud />} />
           <Route path="/admin/users" element={<UsersCrud />} />
           <Route path="/admin/instructors" element={<InstructorCrud />} />
+          <Route path="/admin/analytics" element={<Analytics />} />
           <Route path="/admin/learnerStatus/:id" element={<LeanerStatus />} />
         </Route>
       </Routes>
