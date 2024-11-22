@@ -1,3 +1,5 @@
+
+
 .modalBackground {
     position: absolute;
     left: 0;
@@ -17,7 +19,7 @@
 .modalBackground .modal {
     position: relative;
     width: 1000px;
-    height: 520px;
+    height: 580px;
     background-color: white;
     display: flex;
     flex-direction: column;
@@ -27,6 +29,16 @@
 
     opacity: 0;
     animation: scaleUp 0.5s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards;
+}
+
+.error-span {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+}
+
+.fit-cont {
+    min-height: fit-content;
 }
 
 .increase-modal {

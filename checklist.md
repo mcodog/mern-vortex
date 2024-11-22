@@ -30,7 +30,7 @@
 
 - [ ] filter/mask bad words from reviews. bad-words package 10pts
 - [ ] form validation on product and user forms. (product crud, user login, update profile) 
-- [ ] YUP formik React Hook Form 10pts
+- [x] YUP formik React Hook Form 10pts
 
 # UNIT 2
 

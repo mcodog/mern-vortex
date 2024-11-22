@@ -31,7 +31,24 @@ import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
 const CourseCrud = () => {
+  const formik = useFormik({
+    initialValues: { title: '', description: '', price: '', specialization: '', instructor: '', images: '' },
+    validationSchema: Yup.object({
+      title: Yup.string().required('Title is required'),
+      description: Yup.string().required('Description is required'),
+      price: Yup.string().required('Price is required'),
+      specialization: Yup.string().required('Specialization is required'),
+      instructor: Yup.string().required('Instructor is required'),
+    }),
+    onSubmit: (values) => {
+      alert(JSON.stringify(values, null, 2));
+    },
+  });
+
   const [modalOpen, setModalOpen] = useState(false);
   const [instructorOps, setInstructorOps] = useState(null);
   const [specOps, setSpecOps] = useState(null);
@@ -43,17 +60,17 @@ const CourseCrud = () => {
   const [imagesPreview, setImagesPreview] = useState()
   const [contentData, setContentData] = useState()
   const [contentModal, setContentModal] = useState(false)
-  
+
   const closeModalsContent = () => {
     setContentModal(false)
   }
 
-  const loadContents = async(id) => {
+  const loadContents = async (id) => {
     try {
       const res = await axios.get(`http://localhost:8000/api/course/${id}`)
       setContentData(res)
       setContentModal(true)
-    } catch(e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -90,7 +107,12 @@ const CourseCrud = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    if (crudMode == 'create') {
+    formik.setTouched({ title: true, description: true, price: true, specialization: true, instructor: true });
+    if (crudMode == 'create' && Object.keys(formik.errors).length === 0) {
+      setFormState((prevState) => ({
+        ...prevState,
+        ...formik.values,
+      }));
       handleCreate()
     } else if (crudMode == "update") {
       handleUpdate()
@@ -99,7 +121,8 @@ const CourseCrud = () => {
 
   const handleCreate = async () => {
     if (formState.images !== '') {
-      const uploadPromise = createFuncNoToast('course', formState)
+      // console.log(formik.values)
+      const uploadPromise = createFuncNoToast('course', formik.values)
 
       toast.promise(uploadPromise, {
         loading: 'Attempting to upload images...',
@@ -125,7 +148,9 @@ const CourseCrud = () => {
       }
     } else {
       try {
-        const res = await createFunc('course', formState);
+        // console.log(formik.values)
+
+        const res = await createFunc('course', formik.values);
         const newData = {
           _id: res.data.data._id,
           title: res.data.data.title,
@@ -146,11 +171,11 @@ const CourseCrud = () => {
 
   const handleUpdate = async () => {
     if (formState.images !== '') {
-      const uploadPromise = updateFuncNoToast('course', formState._id, formState)
+      const uploadPromise = updateFuncNoToast('course', formState._id, formik.values)
       toast.promise(uploadPromise, {
         loading: 'Attempting to upload images...',
-        success: 'Course created successfully!',
-        error: 'Unsuccessful: Course Not Created.'
+        success: 'Course updated successfully!',
+        error: 'Unsuccessful: Course Not updated.'
       });
 
       const res = await uploadPromise
@@ -169,7 +194,7 @@ const CourseCrud = () => {
       resetForm()
       setModalOpen(false);
     } else {
-      const res = await updateFunc('course', formState._id, formState)
+      const res = await updateFunc('course', formState._id, formik.values)
       const newCourse = {
         _id: res.data.data._id,
         title: res.data.data.title,
@@ -193,6 +218,7 @@ const CourseCrud = () => {
     setCrudMode('create')
     setMode("Create Course")
     setDesc("Placeholder")
+    formik.resetForm()
     setModalOpen(true)
   }
 
@@ -201,6 +227,8 @@ const CourseCrud = () => {
     resetForm()
     setCrudMode('update')
     const response = await fetchDataN('course', id)
+    formik.resetForm()
+    formik.setValues(response.data.data)
     setFormState(response.data.data)
     console.log(response.data.data)
     if (response.data.data.images.length > 0) {
@@ -236,6 +264,7 @@ const CourseCrud = () => {
       ...prevState,
       images: newImages,
     }));
+    formik.setFieldValue('images', newImages);
   }
 
   const modalData = {
@@ -247,36 +276,37 @@ const CourseCrud = () => {
         type: 'text',
         name: 'title',
         placeholder: 'Enter title',
-        value: formState.title,
-        onChange: (e) => setFormState({ ...formState, title: e.target.value }),
-        required: true,
+        value: formik.values.title,
+        // onChange: (e) => setFormState({ ...formState, title: e.target.value }),
+        onChange: formik.handleChange,
+        // required: true,
       },
       {
         label: 'Description',
         type: 'text',
         name: 'description',
         placeholder: 'Enter description',
-        value: formState.description,
-        onChange: (e) => setFormState({ ...formState, description: e.target.value }),
-        required: true,
+        value:  formik.values.description,
+        onChange: formik.handleChange,
+        // required: true,
       },
       {
         label: 'Price',
         type: 'number',
         name: 'price',
         placeholder: 'Enter price',
-        value: formState.price,
-        onChange: (e) => setFormState({ ...formState, price: e.target.value }),
-        required: true,
+        value: formik.values.price,
+        onChange: formik.handleChange,
+        // required: true,
       },
       {
         label: 'Specialization',
         type: 'select',
         name: 'specialization',
         placeholder: 'Enter specialization',
-        value: formState.specialization,
-        onChange: (e) => setFormState({ ...formState, specialization: e.target.value }),
-        required: true,
+        value: formik.values.specialization,
+        onChange: formik.handleChange,
+        // required: true,
         options: specOps,
         requestFor: 'title',
         withForeign: true,
@@ -287,9 +317,9 @@ const CourseCrud = () => {
         type: 'select',
         name: 'instructor',
         placeholder: 'Enter instructor',
-        value: formState.instructor,
-        onChange: (e) => setFormState({ ...formState, instructor: e.target.value }),
-        required: true,
+        value: formik.values.instructor,
+        onChange: formik.handleChange,
+        // required: true,
         options: instructorOps,
         requestFor: 'last_name',
         withForeign: true,
@@ -386,14 +416,14 @@ const CourseCrud = () => {
     }
   }
 
-  const handleSubmitContent = async(contentForm, id) => {
+  const handleSubmitContent = async (contentForm, id) => {
     try {
       const res = await axios.put(`http://localhost:8000/api/course/addContent/${id}`, contentForm)
       console.log(res)
       fetchData('course', setCourses)
       setContentModal(false)
       toast.success("Success: Course Content added successfully!")
-    } catch(e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -439,7 +469,7 @@ const CourseCrud = () => {
               classNames="modal"
               unmountOnExit
             >
-              <CRUDModal modalData={modalData} closeModals={closeModals} handleSubmit={handleSubmit} imagesPreview={imagesPreview} />
+              <CRUDModal modalData={modalData} closeModals={closeModals} handleSubmit={handleSubmit} imagesPreview={imagesPreview} formik={formik} />
             </CSSTransition>
 
             <CSSTransition
@@ -547,20 +577,20 @@ function Row(props) {
                 </TableHead>
                 <TableBody>
                   {row.courseContents && row.courseContents.length > 0 && (
-                  row.courseContents.map((content) => (
-                    <TableRow key={content.date}>
-                      <TableCell component="th" scope="row">
-                        {content.contentType}
-                      </TableCell>
-                      <TableCell>{content.title}</TableCell>
-                      <TableCell align="right">
-                        {content.description}
-                      </TableCell>
-                      <TableCell align="right">
-                        {content.duration}
-                      </TableCell>
-                    </TableRow>
-                  )))}
+                    row.courseContents.map((content) => (
+                      <TableRow key={content.date}>
+                        <TableCell component="th" scope="row">
+                          {content.contentType}
+                        </TableCell>
+                        <TableCell>{content.title}</TableCell>
+                        <TableCell align="right">
+                          {content.description}
+                        </TableCell>
+                        <TableCell align="right">
+                          {content.duration}
+                        </TableCell>
+                      </TableRow>
+                    )))}
                 </TableBody>
               </Table>
             </Box>
