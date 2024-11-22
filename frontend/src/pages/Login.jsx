@@ -5,8 +5,35 @@ import axios from 'axios'
 import { firebaseLogin, firebaseRegister, signInWithGoogle } from '../auth/auth';
 import { createFunc, createFuncNoToast } from './admin/Utils/CrudUtils'
 import toast from 'react-hot-toast';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object({
+    email: Yup.string()
+        .required('Email is required'),
+    password: Yup.string()
+        .required('Password is required'),
+});
 
 const Login = () => {
+    const formik = useFormik({
+        initialValues: {
+            email: '',
+            password: '',
+        },
+        validationSchema,
+        onSubmit: (values) => {
+            const saveData = loginAttempt()
+
+            toast.promise(saveData, {
+                loading: 'Attempting to Login...',
+                success: 'Logging you in now...',
+                error: 'Unsuccessful: Changes to profile are not saved.'
+            });
+            
+        },
+    });
+
     const [basicInfo, setBasicInfo] = useState()
     const [isRegistering, setIsRegistering] = useState(false); // Toggle between login and register
     const [formData, setFormData] = useState({
@@ -33,7 +60,7 @@ const Login = () => {
             // console.log(res)
             await loginAttempt()
             console.log("Logging in...")
-            window.location.href= "/"
+            window.location.href = "/"
         } catch (e) {
             toast.error("Error: Please check your credentials.")
             console.log(e)
@@ -53,9 +80,9 @@ const Login = () => {
         });
     };
 
-    const loginProcess = async() => {
-        await firebaseRegister(formData.email, formData.password)
-        const response = await createFuncNoToast('user', formData)
+    const loginProcess = async () => {
+        await firebaseRegister(formik.values.email, formik.values.password)
+        const response = await createFuncNoToast('user', formik.values)
         setBasicInfo({ id: response.data.data._id, email: response.data.data.email })
         loginAttempt()
     }
@@ -66,12 +93,14 @@ const Login = () => {
     };
 
     const loginAttempt = async (request, response) => {
-        const user = await firebaseLogin(formData.email, formData.password)
+        const user = await firebaseLogin(formik.values.email, formik.values.password)
         const token = await user.getIdToken();
         const res = await axios.post("http://localhost:8000/auth", { token });
+
+
         setTimeout(() => {
-            if(res.statusText == 'OK') {
-                window.location.href= "/"
+            if (res.statusText == 'OK') {
+                window.location.href = "/"
             }
         }, 2000);
 
@@ -94,26 +123,36 @@ const Login = () => {
                     {/* Login Form */}
                     {!isRegistering && (
                         <div className="form-container" id="login-form">
-                            <form onSubmit={handleSubmitLogin}>
+                            <form onSubmit={formik.handleSubmit}>
                                 <div className="input-block">
                                     <label htmlFor="username">EMAIL</label><br />
                                     <input
                                         type="text"
                                         id="email"
                                         name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
+                                        // value={formData.email}
+                                        // onChange={handleChange}
+                                        value={formik.values.title}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                     />
                                 </div>
+                                {formik.touched.email && formik.errors.email ? (
+                                    <span style={{ color: 'red' }}>{formik.errors.email}</span>
+                                ) : null}
                                 <div className="input-block">
                                     <label htmlFor="password">PASSWORD</label><br />
                                     <input
                                         type="password"
                                         id="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
+                                        value={formik.values.description}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                     />
                                 </div>
+                                {formik.touched.password && formik.errors.password ? (
+                                    <span style={{ color: 'red' }}>{formik.errors.password}</span>
+                                ) : null}
                                 <div className="control-block">
                                     <button type="button">Forgot Password?</button>
                                     <button className="signin" type="submit">Sign In</button>

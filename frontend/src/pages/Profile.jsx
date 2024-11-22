@@ -25,6 +25,15 @@ import Checkbox from '@mui/material/Checkbox';
 import { fetchDataN } from './admin/Utils/CrudUtils';
 import Fab from '@mui/material/Fab';
 import NavigationIcon from '@mui/icons-material/Navigation';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object({
+    first_name: Yup.string()
+        .required('First Name is required'),
+    last_name: Yup.string()
+        .required('Last Name is required'),
+});
 
 const Profile = () => {
     const [currentPage, setCurrentPage] = useState('User Information')
@@ -99,6 +108,18 @@ const Profile = () => {
 }
 
 const UserInfo = () => {
+    const formik = useFormik({
+        initialValues: {
+            first_name: '',
+            last_name: '',
+        },
+        validationSchema,
+        onSubmit: (values) => {
+            alert('Form submitted successfully');
+            console.log(values);
+        },
+    });
+
     const navigate = useNavigate()
     const [age, setAge] = React.useState('');
     const { isAuthenticated, user } = useAuth();
@@ -309,8 +330,24 @@ const UserInfo = () => {
                     </div>
                     <div className="textfield-group">
                         <TextField id="outlined-basic" label="Email" value={formState.email} name="email" variant="outlined" className="text-field" onChange={handleOnChange} />
-                        <TextField id="outlined-basic" label="First Name" value={formState.first_name} name="first_name" variant="outlined" className="text-field" onChange={handleOnChange} />
-                        <TextField id="outlined-basic" label="Last Name" value={formState.last_name} name="last_name" variant="outlined" className="text-field" onChange={handleOnChange} />
+                        <TextField
+                            id="outlined-basic"
+                            label="First Name"
+                            value={formState.first_name}
+                            name="first_name"
+                            variant="outlined"
+                            className="text-field"
+                            onChange={(e) => { handleOnChange(e); formik.handleChange(e) }}
+                            // onChange={}
+                            onBlur={formik.handleBlur}
+                        />
+                        {formik.touched.first_name && formik.errors.first_name ? (
+                            <span style={{ color: 'red' }}>{formik.errors.first_name}</span>
+                        ) : null}
+                        <TextField id="outlined-basic" label="Last Name" value={formState.last_name} name="last_name" variant="outlined" className="text-field" onChange={(e) => { handleOnChange(e); formik.handleChange(e) }} onBlur={formik.handleBlur} />
+                        {formik.touched.last_name && formik.errors.last_name ? (
+                            <span style={{ color: 'red' }}>{formik.errors.last_name}</span>
+                        ) : null}
                     </div>
                 </div>
                 <div className="textfield-group margin-top">
@@ -586,7 +623,7 @@ const Courses = () => {
             <div className="main-with-side">
                 <div className="cart-container">
                     <div className="headers alt">
-                        
+
                         <div className="heads">Course</div>
                         <div className="heads">Status</div>
                         <div className="heads">Controls</div>
@@ -597,7 +634,7 @@ const Courses = () => {
                                 courseList.map((course) => {
                                     return (
                                         <div className="cart-item alt">
-                                            
+
                                             <div className="item-info">
                                                 <div className="item-img__container">
                                                     <img src={course.image_url} alt="" />
@@ -608,7 +645,7 @@ const Courses = () => {
                                             </div>
                                             <div className="item-status">
                                                 <Chip label={course.status} />
-                                                
+
                                             </div>
                                             <div className="item-control">
                                                 <button>View</button>
@@ -621,7 +658,7 @@ const Courses = () => {
                                 null
                             )
                         }
-                         {/* {
+                        {/* {
                             user.cart.map((item, index) => {
                                 return (
                                     <>
