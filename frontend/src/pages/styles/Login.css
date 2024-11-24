@@ -179,6 +179,10 @@
     color:#ff495b;
 }
 
+.alt {
+    background-color: white !important;
+}
+
 .socials-block {
     /* border:1px solid red; */
     height:100px;
@@ -192,13 +196,20 @@
     padding-right: 0px;
 }
 
+.link-prime {
+    all:unset;
+    background-color: none;
+    text-decoration: underline;
+    color:var(--primary-color)
+}
+
 .social {
     /* border: 1px solid red; */
     height:70px;
     width: 100px;
 
     border-radius: 20px;
-    background-color:#f4b9bf;
+    background-color:var(--primary-color);
     flex-grow: 1;
 
     display: flex;
@@ -209,6 +220,29 @@
 
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     cursor: pointer;
+    transition:.5s;
+    color:white;
+    border:none;
+}
+
+.social:hover {
+    transition: .5s;
+    background-color: white;
+    color: var(--primary-color) !important;
+}
+
+.social:focus {
+    animation: pulse 1s forwards;
+    border:1px solid red;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(.9);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 a {
