@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 import { FaGooglePlus } from "react-icons/fa6";
 import { FaFacebook } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
+import { FaChevronLeft } from "react-icons/fa";
 
 const validationSchema = Yup.object({
     email: Yup.string()
@@ -135,7 +136,7 @@ const Login = () => {
                         className="return"
                         onClick={() => window.location.href = '/'}
                     >
-                        <i className="bi bi-arrow-left" style={{ fontSize: '22px' }}></i>
+                        <FaChevronLeft />
                     </button>
                     <div className="title">CLVR</div>
                     <div className="form-parent">

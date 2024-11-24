@@ -51,8 +51,8 @@
 
 # QUIZ 3
 
-- [ ] pagination on products list on homepage. 10pts
-- [ ] infinite scroll on products list on homepage. 15pts
+- [x] pagination on products list on homepage. 10pts
+- [x] infinite scroll on products list on homepage. 15pts
 
 # QUIZ 4
 

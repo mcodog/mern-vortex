@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './styles/Courses.css'
 import axios from 'axios'
 import Skeleton from '@mui/material/Skeleton';
@@ -8,23 +8,51 @@ import { Link } from 'react-router-dom'
 import { FaStar, FaRegStarHalfStroke, FaRegStar } from "react-icons/fa6";
 
 const Course = () => {
-    const [courses, setCourses] = useState([])
-    const retrieveCourses = async () => {
+    const [courses, setCourses] = useState([]);
+    const [page, setPage] = useState(1); // Tracks the current page
+    const [hasMore, setHasMore] = useState(true); // Tracks if more courses are available
+    const observerRef = useRef(null); // Ref for observing the bottom of the list
+
+    const LIMIT = 10; // Number of courses per page
+
+    // Fetch courses
+    const retrieveCourses = async (pageNumber) => {
         try {
-            const res = await axios.get(`http://localhost:8000/api/course`)
-            setCourses(res.data.data)
+            // setCourses([])
+            const res = await axios.get(`http://localhost:8000/api/course/split?page=${pageNumber}&limit=${LIMIT}`);
+            console.log(res)
+            const { data, totalPages } = res.data;
+
+            setCourses((prevCourses) => [...prevCourses, ...data]); // Append new courses
+            setHasMore(pageNumber < totalPages); // Check if more pages exist
         } catch (e) {
-            console.log(e)
+            console.error("Error fetching courses:", e);
         }
-    }
+    };
 
+    // Set up Intersection Observer
     useEffect(() => {
-        retrieveCourses()
-    }, [])
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && hasMore) {
+                    setPage((prevPage) => prevPage + 1);
+                }
+            },
+            { threshold: 1.0 }
+        );
 
+        if (observerRef.current) {
+            observer.observe(observerRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [hasMore]);
+
+    // Fetch courses when `page` updates
     useEffect(() => {
-        console.log(courses)
-    }, [courses])
+        retrieveCourses(page);
+    }, [page]);
+
     return (
         <>
             <section>
@@ -192,39 +220,39 @@ const Course = () => {
                             </div>
                         </div>
                         <div className="deck">
-                            {
-                                courses.length > 0 ? (
-                                    courses.map((course) => {
-                                        return (
-                                            <Link to={`/course/${course._id}`} style={{ color: 'black', textDecoration: 'none' }}>
-                                                <div class="card">
-                                                    <div class="card-img">
-                                                        {
-                                                            course.images.length > 0 ? (
-                                                                <img src={course.images[0].url} alt="course-img" />
-                                                            ) : (
-                                                                <img src="https://placehold.co/600x400" alt="course-img" />
-                                                            )
-                                                        }
-
-                                                    </div>
-                                                    <div class="card-body">
-                                                        <div class="card-title">{course.title}</div>
-                                                        <div class="card-description">
-                                                            {course.description}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        )
-                                    })
-                                ) : (
-                                    <div className='d-flex'>
-                                        <Skeleton variant="rectangular" width="20%" height={180} />
-                                        <Skeleton variant="rectangular" width="80%" height={180} />
-                                    </div>
-                                )
-                            }
+                            {courses.length > 0 ? (
+                                courses.map((course, index) => (
+                                    <Link
+                                        key={course._id}
+                                        to={`/course/${course._id}`}
+                                        style={{ color: 'black', textDecoration: 'none' }}
+                                    >
+                                        <div className="card">
+                                            <div className="card-img">
+                                                {course.images.length > 0 ? (
+                                                    <img src={course.images[0].url} alt="course-img" />
+                                                ) : (
+                                                    <img src="https://placehold.co/600x400" alt="placeholder-img" />
+                                                )}
+                                            </div>
+                                            <div className="card-body">
+                                                <div className="card-title">{course.title}</div>
+                                                <div className="card-description">{course.description}</div>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))
+                            ) : (
+                                <div className="d-flex">
+                                    <Skeleton variant="rectangular" width="20%" height={180} />
+                                    <Skeleton variant="rectangular" width="80%" height={180} />
+                                </div>
+                            )}
+                            {hasMore && (
+                                <div ref={observerRef} className="loading">
+                                    <Skeleton variant="rectangular" width="100%" height={50} />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,9 @@
 import Course from "../models/Course.model.js"
 import mongoose from 'mongoose'
 import cloudinary from 'cloudinary'
+import User from '../models/User.model.js'; 
+import Specialization from '../models/Specialization.model.js'; 
+import Instructor from '../models/Instructor.model.js'; 
 
 export const getCourse = async (request, response) => {
     try {
@@ -14,6 +17,24 @@ export const getCourse = async (request, response) => {
         response.status(500).json({ success: false, message: "Server Error." });
     }
 };
+
+export const pagedGet = async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+
+    const skip = (page - 1) * limit;
+    const totalCourses = await Course.countDocuments();
+
+    const courses = await Course.find()
+        .skip(skip)
+        .limit(Number(limit))
+        .lean();
+
+    res.json({
+        data: courses,
+        totalPages: Math.ceil(totalCourses / limit),
+        currentPage: Number(page),
+    });
+  };
 
 export const getOneCourse = async (request, response) => {
     try {
@@ -367,3 +388,78 @@ export const deleteReview = async (req, res) => {
 };
 
 export default deleteReview;
+
+export const seedCourses = async (req, res) => {
+    try {
+        console.log('Seeding Courses...')
+      // Fetch required data from the database
+      const specializations = await Specialization.find();
+      const instructors = await Instructor.find();
+      const users = await User.find();
+  
+      if (specializations.length === 0 || instructors.length === 0 || users.length === 0) {
+        return res.status(400).json({
+          message: 'Ensure Specializations, Instructors, and Users are present in the database before running the seeder.'
+        });
+      }
+  
+      // Generate 30 unique courses
+      const courses = Array.from({ length: 30 }, (_, i) => ({
+        title: `Course ${i + 1}: ${["Introduction to", "Advanced", "Mastering"][i % 3]} ${["Web Development", "Marketing", "Business", "Design"][i % 4]}`,
+        description: `This is a detailed course focused on ${["Web Development", "Marketing", "Business", "Design"][i % 4]}.`,
+        price: Math.floor(Math.random() * 200) + 50, // Random price between $50 and $250
+        specialization: [specializations[i % specializations.length]._id], // Assign specialization in a loop
+        instructor: [instructors[i % instructors.length]._id], // Assign instructor in a loop
+        courseContents: [
+          {
+            contentType: ['Learning Module', 'Examination Module', 'Video Discussion'][i % 3],
+            title: `Content ${i + 1} for Course ${i + 1}`,
+            description: `This module covers detailed topics for Course ${i + 1}.`,
+            duration: Math.floor(Math.random() * 120) + 30, // Random duration between 30-150 minutes
+            contentItems: [
+              {
+                url: null,
+                chapters: [
+                  {
+                    chapterTitle: `Chapter 1 of Course ${i + 1}`,
+                    chapterContent: `Content for Chapter 1 of Course ${i + 1}.`
+                  }
+                ],
+                questions: [
+                  {
+                    questionText: `What is ${["HTML", "Marketing Strategy", "Business Planning", "Graphic Design"][i % 4]}?`,
+                    options: `Option A|Option B|Option C|Option D`,
+                    correctAnswer: `Option ${["A", "B", "C", "D"][i % 4]}`
+                  }
+                ],
+                notes: `These are notes for Course ${i + 1}.`
+              }
+            ]
+          }
+        ],
+        reviews: [
+          {
+            userId: users[i % users.length]._id, // Assign a user for the review
+            rating: (Math.random() * 5).toFixed(1), // Random rating between 0.0 and 5.0
+            review: `This is a sample review for Course ${i + 1}.`
+          }
+        ]
+      }));
+  
+      // Clear the Course collection to prevent duplicates
+    //   await Course.deleteMany({});
+  
+      // Insert the courses into the database
+      const createdCourses = await Course.insertMany(courses);
+  
+      res.status(201).json({
+        message: 'Courses seeded successfully!',
+        data: createdCourses
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: 'Error seeding courses',
+        error: error.message
+      });
+    }
+  };
